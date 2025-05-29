@@ -1,4 +1,4 @@
-# 📱 AttendanceApp
+# 📱 SmartCheck App
 
 A mobile-based attendance management system using **React Native** with **facial recognition** and **geofencing (GPS)**. Built to streamline academic attendance tracking for students and lecturers.
 
