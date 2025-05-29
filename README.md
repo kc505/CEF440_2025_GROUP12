@@ -93,6 +93,42 @@ git push origin your-feature-branch
 - Assign reviewers and wait for approval.
 
 ---
+### Frontend Architecture 
+
+/SmartCheck
+├── /src
+│   ├── /assets               # Images, icons, logos, fonts
+│   ├── /components/          # Reusable UI components (Button, Card, Header, etc.)
+│   |    ├── common/          # Generic components (Button, Input, etc.)
+│   |    ├── forms/           # Form-specific components
+│   |    └── charts/          # Data visualization components
+├── screens/                  # Screen components organized by user role
+│   ├── auth/                 # Authentication screens
+│   ├── student/              # Student-specific screens
+│   │   ├── /Home
+│   │   ├── /Dashboard
+│   │   ├── /CheckIn
+│   │   ├── /Reports
+│   │   ├── /Course
+│   │   ├── /Profile
+│   │   ├── /Dispute
+│   │   └── /Auth            # Login/Register
+│   ├── lecturer/            # Lecturer-specific screens
+│   ├── admin/               # Admin-specific screens
+│   └── common/              # Shared screens
+│   ├── /constants           # Reusable constants (colors, strings, styles)
+│   ├── /navigation          # Navigation logic (Stack, Tab, Drawer)
+│   ├── /services            # Firebase, API, face recognition, GPS
+│   ├── /store               # Redux/Zustand state management
+│   ├── /utils               # Utility functions (validators, GPS checker, etc.)
+│   └── App.js               # Entry point
+│
+├── .env                     # Environment variables (Firebase keys)
+├── app.json / app.config.js
+├── package.json
+└── README.md
+
+
 
 ## 💡 Tips
 
