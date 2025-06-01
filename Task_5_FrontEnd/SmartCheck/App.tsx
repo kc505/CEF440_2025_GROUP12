@@ -19,6 +19,24 @@ import CourseProfile from './src/components/Course';
 import SquareCard from './src/components/squarecard';
 import Input from './src/components/Input';
 import Card from './src/components/card.js';
+import Signup from './src/screens/Aut/Signup.js';
+import Login from './src/screens/Aut/Login.js';
+import { createStackNavigator } from '@react-navigation/stack';
+import AttendanceHistory from './src/screens/CheckIn/AttendanceHistory';
+
+
+
+const Stack = createStackNavigator();
+
+<Stack.Navigator initialRouteName="Signup">
+  <Stack.Screen name="Signup" component={Signup} />
+  <Stack.Screen name="Login" component={Login} />
+<Stack.Screen name="AttendanceHistory" component={AttendanceHistory} />
+</Stack.Navigator>
+
+const handleNotificationPress = () => {
+  console.log("Notification icon pressed! Placeholder action.");
+};
 
 const App = () => {
   // State for active tab
@@ -272,6 +290,7 @@ const App = () => {
       <Footer 
         activeTab={activeTab}
         onTabPress={handleTabPress}
+        onNotificationPress={handleNotificationPress}
       />
     </SafeAreaView>
   );

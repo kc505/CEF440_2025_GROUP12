@@ -4,12 +4,14 @@ import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-nativ
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
-const Header = ({ 
+const Footer = ({ 
   appName = "My App", 
   onNotificationPress,
   notificationCount = 0,
   backgroundColor = '#fff',
-  textColor = '#333'
+  textColor = '#333',
+   activeTab,        // <<< ADD THIS LINE
+  onTabPress        // <<< ADD THIS LINE
 }) => {
   return (
     <>
@@ -110,4 +112,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Header;
+export default Footer;
