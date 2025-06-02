@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import Button from '../../components/Button'; // Assuming this is your custom Button component
+import Button from '../../components/Button';
 
 const Signup = () => {
   const navigation = useNavigation();
@@ -30,7 +30,7 @@ const Signup = () => {
 
       if (response.ok) {
         Alert.alert('Success', 'Signup successful!');
-        navigation.navigate('Login'); // ensure Login screen is registered in navigation
+        navigation.navigate('Login');
       } else {
         Alert.alert('Error', data.message || 'Signup failed');
       }
