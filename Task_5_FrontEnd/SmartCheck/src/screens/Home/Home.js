@@ -21,7 +21,10 @@ const Home = () => {
   ];
 
   const handleNavigation = (screen) => {
-    alert(`Navigate to ${screen}`); // Replace with navigation later
+    if(!screen){
+      alert(`Navigation to ${screen}`);
+    }
+    else{navigation.navigate(screen);}
   };
 
   const renderItem = ({ item }) => (
@@ -40,7 +43,7 @@ const Home = () => {
       <Header
         appName="SmartCheck"
         onNotificationPress={() => alert('You have new notifications!')}
-        notificationCount={2}
+        notificationCount={3}
       />
 
       <FlatList
