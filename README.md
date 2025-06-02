@@ -94,7 +94,7 @@ git push origin your-feature-branch
 
 ---
 ### Frontend Architecture 
-
+```bash
 /SmartCheck
 ├── /src
 │   ├── /assets               # Images, icons, logos, fonts
@@ -127,7 +127,7 @@ git push origin your-feature-branch
 ├── app.json / app.config.js
 ├── package.json
 └── README.md
-
+```
 
 
 ## 💡 Tips
