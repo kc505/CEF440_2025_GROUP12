@@ -1,0 +1,2 @@
+C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\java\com\attendanceapp\MainApplication.kt
+C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\java\com\attendanceapp\MainActivity.kt

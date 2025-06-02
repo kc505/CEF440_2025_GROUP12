@@ -1,0 +1,174 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.smartcheck"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:3:5-67
+11-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:3:22-64
+12    <uses-permission android:name="android.permission.CAMERA" />
+12-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:4:5-65
+12-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:4:22-62
+13
+14    <uses-feature
+14-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:5:5-91
+15        android:name="android.hardware.camera.front"
+15-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:5:19-63
+16        android:required="false" />
+16-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:5:64-88
+17    <!--
+18    This manifest file is used only by Gradle to configure debug-only capabilities
+19    for React Native Apps.
+20    -->
+21    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+21-->[com.facebook.react:react-android:0.79.2] C:\Users\HP\.gradle\caches\8.13\transforms\da9646768b5c066f59460fd0c717f97f\transformed\react-android-0.79.2-debug\AndroidManifest.xml:16:5-78
+21-->[com.facebook.react:react-android:0.79.2] C:\Users\HP\.gradle\caches\8.13\transforms\da9646768b5c066f59460fd0c717f97f\transformed\react-android-0.79.2-debug\AndroidManifest.xml:16:22-75
+22    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+22-->[com.facebook.flipper:flipper:0.125.0] C:\Users\HP\.gradle\caches\8.13\transforms\22ad62992f8e77fa4472d581f7b4e8ab\transformed\flipper-0.125.0\AndroidManifest.xml:16:5-76
+22-->[com.facebook.flipper:flipper:0.125.0] C:\Users\HP\.gradle\caches\8.13\transforms\22ad62992f8e77fa4472d581f7b4e8ab\transformed\flipper-0.125.0\AndroidManifest.xml:16:22-73
+23
+24    <permission
+24-->[androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.13\transforms\919a185eb3bab91838bb4904ff725e90\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+25        android:name="com.smartcheck.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+25-->[androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.13\transforms\919a185eb3bab91838bb4904ff725e90\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+26        android:protectionLevel="signature" />
+26-->[androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.13\transforms\919a185eb3bab91838bb4904ff725e90\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+27
+28    <uses-permission android:name="com.smartcheck.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+28-->[androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.13\transforms\919a185eb3bab91838bb4904ff725e90\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+28-->[androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.13\transforms\919a185eb3bab91838bb4904ff725e90\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+29
+30    <application
+30-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:7:5-28:19
+31        android:name="com.smartcheck.MainApplication"
+31-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:8:9-40
+32        android:allowBackup="false"
+32-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:12:9-36
+33        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+33-->[androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.13\transforms\919a185eb3bab91838bb4904ff725e90\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+34        android:debuggable="true"
+35        android:extractNativeLibs="false"
+36        android:icon="@mipmap/ic_launcher"
+36-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:10:9-43
+37        android:label="@string/app_name"
+37-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:9:9-41
+38        android:roundIcon="@mipmap/ic_launcher_round"
+38-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:11:9-54
+39        android:supportsRtl="true"
+39-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:14:9-35
+40        android:theme="@style/AppTheme"
+40-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:13:9-40
+41        android:usesCleartextTraffic="true" >
+41-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\debug\AndroidManifest.xml:6:9-44
+42        <activity
+42-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:16:9-27:20
+43            android:name="com.smartcheck.MainActivity"
+43-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:17:13-41
+44            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+44-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:19:13-122
+45            android:exported="true"
+45-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:22:13-36
+46            android:label="@string/app_name"
+46-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:18:13-45
+47            android:launchMode="singleTask"
+47-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:20:13-44
+48            android:windowSoftInputMode="adjustResize" >
+48-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:21:13-55
+49            <intent-filter>
+49-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:23:13-26:29
+50                <action android:name="android.intent.action.MAIN" />
+50-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:24:17-69
+50-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:24:25-66
+51
+52                <category android:name="android.intent.category.LAUNCHER" />
+52-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:25:17-77
+52-->C:\Users\HP\Desktop\CEF440_2025_GROUP12\Task_5_FrontEnd\SmartCheck\android\app\src\main\AndroidManifest.xml:25:27-74
+53            </intent-filter>
+54        </activity>
+55        <activity
+55-->[com.facebook.react:react-android:0.79.2] C:\Users\HP\.gradle\caches\8.13\transforms\da9646768b5c066f59460fd0c717f97f\transformed\react-android-0.79.2-debug\AndroidManifest.xml:19:9-21:40
+56            android:name="com.facebook.react.devsupport.DevSettingsActivity"
+56-->[com.facebook.react:react-android:0.79.2] C:\Users\HP\.gradle\caches\8.13\transforms\da9646768b5c066f59460fd0c717f97f\transformed\react-android-0.79.2-debug\AndroidManifest.xml:20:13-77
+57            android:exported="false" />
+57-->[com.facebook.react:react-android:0.79.2] C:\Users\HP\.gradle\caches\8.13\transforms\da9646768b5c066f59460fd0c717f97f\transformed\react-android-0.79.2-debug\AndroidManifest.xml:21:13-37
+58
+59        <provider
+59-->[androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.13\transforms\fbdba107b34afa4b329abfebfca6351c\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+60            android:name="androidx.startup.InitializationProvider"
+60-->[androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.13\transforms\fbdba107b34afa4b329abfebfca6351c\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+61            android:authorities="com.smartcheck.androidx-startup"
+61-->[androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.13\transforms\fbdba107b34afa4b329abfebfca6351c\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+62            android:exported="false" >
+62-->[androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.13\transforms\fbdba107b34afa4b329abfebfca6351c\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+63            <meta-data
+63-->[androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.13\transforms\fbdba107b34afa4b329abfebfca6351c\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+64                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+64-->[androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.13\transforms\fbdba107b34afa4b329abfebfca6351c\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+65                android:value="androidx.startup" />
+65-->[androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.13\transforms\fbdba107b34afa4b329abfebfca6351c\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+66            <meta-data
+66-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\HP\.gradle\caches\8.13\transforms\0ad6e1b22ee81712eaff76560c1284a2\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+67                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+67-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\HP\.gradle\caches\8.13\transforms\0ad6e1b22ee81712eaff76560c1284a2\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+68                android:value="androidx.startup" />
+68-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\HP\.gradle\caches\8.13\transforms\0ad6e1b22ee81712eaff76560c1284a2\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+69            <meta-data
+69-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+70                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+70-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+71                android:value="androidx.startup" />
+71-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+72        </provider>
+73
+74        <receiver
+74-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+75            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+75-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+76            android:directBootAware="false"
+76-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+77            android:enabled="true"
+77-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+78            android:exported="true"
+78-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+79            android:permission="android.permission.DUMP" >
+79-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+80            <intent-filter>
+80-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+81                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+81-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+81-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+82            </intent-filter>
+83            <intent-filter>
+83-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+84                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+84-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+84-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+85            </intent-filter>
+86            <intent-filter>
+86-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+87                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+87-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+87-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+88            </intent-filter>
+89            <intent-filter>
+89-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+90                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.13\transforms\e4e11a9c6e7f319069a7d0c4f0f2ff5d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+91            </intent-filter>
+92        </receiver>
+93
+94        <meta-data
+94-->[com.facebook.soloader:soloader:0.12.1] C:\Users\HP\.gradle\caches\8.13\transforms\aa999b194c376baa3a038eda52eb4932\transformed\soloader-0.12.1\AndroidManifest.xml:12:9-14:37
+95            android:name="com.facebook.soloader.enabled"
+95-->[com.facebook.soloader:soloader:0.12.1] C:\Users\HP\.gradle\caches\8.13\transforms\aa999b194c376baa3a038eda52eb4932\transformed\soloader-0.12.1\AndroidManifest.xml:13:13-57
+96            android:value="false" />
+96-->[com.facebook.soloader:soloader:0.12.1] C:\Users\HP\.gradle\caches\8.13\transforms\aa999b194c376baa3a038eda52eb4932\transformed\soloader-0.12.1\AndroidManifest.xml:14:13-34
+97    </application>
+98
+99</manifest>
