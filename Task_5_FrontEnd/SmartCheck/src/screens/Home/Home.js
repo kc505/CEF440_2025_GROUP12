@@ -40,7 +40,7 @@ const Home = () => {
       <Header
         appName="SmartCheck"
         onNotificationPress={() => alert('You have new notifications!')}
-        notificationCount={2}
+        notificationCount={3}
       />
 
       <FlatList

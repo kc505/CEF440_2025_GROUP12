@@ -28,8 +28,7 @@ const Login = () => {
 
       if (response.ok) {
         Alert.alert('Success', 'Login successful!');
-        // Navigate to your home/dashboard screen if it exists
-        // Example: navigation.replace('Home');
+        navigation.replace('Home');
       } else {
         Alert.alert('Login Failed', data.message || 'Invalid credentials.');
       }
