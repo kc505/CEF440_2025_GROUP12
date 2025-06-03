@@ -15,7 +15,7 @@ import AttendanceHistory from './src/screens/CheckIn/AttendanceHistory';
 import FacialRecognitionScreen from './src/screens/CheckIn/FacialRecognition';
 import AttendanceLoginScreen from './src/screens/CheckIn/AttendanceLogin';
 import HomeScreen from './src/screens/Home/Home';
-import Footer from './src/components/Footer';
+import Footer from './src/components/Footer.js';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
