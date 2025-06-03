@@ -35,7 +35,7 @@ const SplashScreen = ({ navigation }) => {
           }, 500);
           return 100;
         }
-        return prev + 0.5;
+        return prev + 1.0;
       });
     }, 80);
 
@@ -57,15 +57,15 @@ const SplashScreen = ({ navigation }) => {
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Logo Section */}
         <View style={styles.logoSection}>
-          <View style={styles.logoContainer}>
+          {/* <View style={styles.logoContainer}>
             <View style={styles.logo}>
               <Text style={styles.logoIcon}>✓</Text>
             </View>
             <View style={styles.pulseIndicator} />
-          </View>
+          </View> */}
 
-          <Text style={styles.appTitle}>AttendEase</Text>
-          <Text style={styles.appSubtitle}>Smart Attendance Management</Text>
+          <Text style={styles.appTitle}>SmartCheck</Text>
+          <Text style={styles.appSubtitle}>Where Presence meets Precision</Text>
         </View>
 
         {/* Feature Showcase */}

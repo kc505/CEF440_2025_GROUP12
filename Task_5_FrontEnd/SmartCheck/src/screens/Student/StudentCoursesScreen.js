@@ -7,6 +7,7 @@ import {
   StyleSheet
 } from 'react-native';
 import CourseProfile from '../../components/Course';
+//import Img from '../../assets/splash.png'
 
 const MyCoursesScreen = () => {
   const courses = [
@@ -15,7 +16,7 @@ const MyCoursesScreen = () => {
       CourseName: 'Human Computer Interface',
       CourseId: 'CEF400',
       department: 'Engineering',
-      profileImage: require('../assets/splash-icon.png'),
+      profileImage: null,
       status: 'Incoming',
     },
     {
@@ -23,7 +24,7 @@ const MyCoursesScreen = () => {
       CourseName: 'Feedback Systems Laboratory',
       CourseId: 'EEF470',
       department: 'Engineering',
-      profileImage: require('../assets/favicon.png'),
+      profileImage: null,
       status: 'Active',
     },
     {
