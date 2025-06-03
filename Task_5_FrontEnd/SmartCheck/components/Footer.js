@@ -1,34 +1,35 @@
-import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 
-const Footer = ({
+import React from 'react';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+const Footer = ({ 
   activeTab = 'home',
   onTabPress,
   backgroundColor = '#fff'
 }) => {
   const tabs = [
-    {
-      id: 'home',
-      label: 'Home',
+    { 
+      id: 'home', 
+      label: 'Home', 
       icon: 'home-outline',
       activeIcon: 'home'
     },
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
+    { 
+      id: 'dashboard', 
+      label: 'Dashboard', 
       icon: 'grid-outline',
       activeIcon: 'grid'
     },
-    {
-      id: 'profile',
-      label: 'Profile',
+    { 
+      id: 'profile', 
+      label: 'Profile', 
       icon: 'person-outline',
       activeIcon: 'person'
     },
-    {
-      id: 'dispute',
-      label: 'Dispute',
+    { 
+      id: 'dispute', 
+      label: 'Dispute', 
       icon: 'alert-circle-outline',
       activeIcon: 'alert-circle'
     }
@@ -45,7 +46,7 @@ const Footer = ({
             onPress={() => onTabPress && onTabPress(tab.id)}
             activeOpacity={0.7}
           >
-            <Icon
+            <Ionicons 
               name={isActive ? tab.activeIcon : tab.icon}
               size={24}
               color={isActive ? '#007AFF' : '#666'}
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     paddingVertical: 8,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 12,
+    paddingBottom: 12,
     borderTopWidth: 1,
     borderTopColor: '#E5E5E5',
     shadowColor: '#000',
