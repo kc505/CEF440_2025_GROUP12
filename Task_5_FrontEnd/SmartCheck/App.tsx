@@ -5,11 +5,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 // Import your JavaScript screens
-import SplashScreen from './src/screens/Auth/Splash';
-import Signup from './src/screens/Auth/Signup.js';
-import Login from './src/screens/Auth/Login.js';
-import JoinClassScreen from './src/screens/Student/StudentHomeScreen';
-import MyCoursesScreen from './src/screens/Student/StudentCourseScreen';
+import SplashScreen from './src/screens/Aut/Splash';
+import Signup from './src/screens/Aut/Signup.js';
+import Login from './src/screens/Aut/Login.js';
+import JoinClassScreen from './src/screens/Home/Home.js';
+import MyCoursesScreen from './src/screens/Student/StudentCoursesScreen.js';
 import GeofenceAttendancePage from './src/screens/Student/GeofenceScreen';
 import AttendanceHistory from './src/screens/CheckIn/AttendanceHistory';
 import FacialRecognitionScreen from './src/screens/CheckIn/FacialRecognition';
@@ -44,7 +44,7 @@ const MainTabNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let iconName: string;
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
@@ -54,6 +54,8 @@ const MainTabNavigator = () => {
             iconName = focused ? 'person' : 'person-outline';
           } else if (route.name === 'Dispute') {
             iconName = focused ? 'alert-circle' : 'alert-circle-outline';
+          } else {
+            iconName = 'help-outline';
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -106,6 +108,9 @@ const MainTabNavigator = () => {
     </Tab.Navigator>
   );
 };
+
+// App Component 
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -113,18 +118,14 @@ const MainTabNavigator = () => {
         screenOptions={{ headerShown: false }}
       >
         {/* Auth Flow */}
-        <Stack.Screen
-          name="Splash"
-          component={SplashScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen
           name="Login"
           component={Login}
           options={{
             headerShown: true,
             title: 'Login',
-            headerBackTitle: 'Back'
+            headerBackTitle: 'Back',
           }}
         />
         <Stack.Screen
@@ -133,18 +134,16 @@ const MainTabNavigator = () => {
           options={{
             headerShown: true,
             title: 'Sign Up',
-            headerBackTitle: 'Back'
+            headerBackTitle: 'Back',
           }}
         />
 
         {/* Student Dashboard Flow */}
         <Stack.Screen
           name="StudentHome"
-          component={JoinClassScreen}
+          component={MainTabNavigator}
           options={{
-            headerShown: true,
-            title: 'Student Dashboard',
-            headerBackTitle: 'Back'
+            headerShown: false,
           }}
         />
         <Stack.Screen
@@ -153,7 +152,7 @@ const MainTabNavigator = () => {
           options={{
             headerShown: true,
             title: 'My Courses',
-            headerBackTitle: 'Dashboard'
+            headerBackTitle: 'Dashboard',
           }}
         />
 
@@ -163,7 +162,7 @@ const MainTabNavigator = () => {
           component={GeofenceAttendancePage}
           options={{
             headerShown: false,
-            title: 'Location Verification'
+            title: 'Location Verification',
           }}
         />
         <Stack.Screen
@@ -172,7 +171,7 @@ const MainTabNavigator = () => {
           options={{
             headerShown: true,
             title: 'Facial Recognition',
-            headerBackTitle: 'Back'
+            headerBackTitle: 'Back',
           }}
         />
         <Stack.Screen
@@ -181,7 +180,7 @@ const MainTabNavigator = () => {
           options={{
             headerShown: true,
             title: 'Attendance History',
-            headerBackTitle: 'Dashboard'
+            headerBackTitle: 'Dashboard',
           }}
         />
 
@@ -191,7 +190,7 @@ const MainTabNavigator = () => {
           component={HomeScreen}
           options={{
             headerShown: true,
-            title: 'Home'
+            title: 'Home',
           }}
         />
         <Stack.Screen
@@ -199,7 +198,7 @@ const MainTabNavigator = () => {
           component={AttendanceLoginScreen}
           options={{
             headerShown: true,
-            title: 'Attendance Login'
+            title: 'Attendance Login',
           }}
         />
       </Stack.Navigator>

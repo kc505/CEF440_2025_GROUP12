@@ -1,45 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Animated, StyleSheet, Easing } from 'react-native';
 
-interface SplashScreenProps {
-  onComplete: () => void;
-}
-
-interface Feature {
-  title: string;
-  description: string;
-}
-
-const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
+const SplashScreen = ({ navigation }) => {
   const [progress, setProgress] = useState(0);
   const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const features: Feature[] = [
-    {
-      title: "Facial Recognition",
-      description: "Advanced AI-powered facial recognition for secure and accurate student identification"
-    },
-    {
-      title: "Geofencing Technology",
-      description: "Location-based attendance tracking ensures students are physically present in class"
-    },
-    {
-      title: "Real-time Tracking",
-      description: "Instant attendance updates with comprehensive reporting and analytics"
-    },
-    {
-      title: "Class Management",
-      description: "Effortlessly manage multiple classes and track student participation"
-    },
-    {
-      title: "Smart Scheduling",
-      description: "Automated attendance tracking based on class schedules and time slots"
-    },
-    {
-      title: "Secure & Private",
-      description: "Enterprise-grade security ensuring your data remains protected"
-    }
+  const features = [
+    { title: "Facial Recognition", description: "Advanced AI-powered facial recognition for secure and accurate student identification" },
+    { title: "Geofencing Technology", description: "Location-based attendance tracking ensures students are physically present in class" },
+    { title: "Real-time Tracking", description: "Instant attendance updates with comprehensive reporting and analytics" },
+    { title: "Class Management", description: "Effortlessly manage multiple classes and track student participation" },
+    { title: "Smart Scheduling", description: "Automated attendance tracking based on class schedules and time slots" },
+    { title: "Secure & Private", description: "Enterprise-grade security ensuring your data remains protected" },
   ];
 
   useEffect(() => {
@@ -51,19 +24,22 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       useNativeDriver: true,
     }).start();
 
-    // Progress bar animation
+    // Progress bar timer
     const progressTimer = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(progressTimer);
-          setTimeout(() => onComplete(), 500);
+          // Navigate to StudentHome after a short delay
+          setTimeout(() => {
+            navigation.replace('StudentHome');
+          }, 500);
           return 100;
         }
         return prev + 0.5;
       });
     }, 80);
 
-    // Feature carousel
+    // Feature carousel timer
     const carouselTimer = setInterval(() => {
       setCurrentFeatureIndex(prev => (prev + 1) % features.length);
     }, 2500);
@@ -72,14 +48,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       clearInterval(progressTimer);
       clearInterval(carouselTimer);
     };
-  }, [fadeAnim, features.length, onComplete]);
+  }, [fadeAnim, features.length, navigation]);
 
   const currentFeature = features[currentFeatureIndex];
 
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-
         {/* Logo Section */}
         <View style={styles.logoSection}>
           <View style={styles.logoContainer}>
@@ -123,10 +98,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 styles.progressFill,
                 {
                   width: `${progress}%`,
-                  transform: [{ translateX: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-100, 0]
-                  }) }]
+                  transform: [{
+                    translateX: fadeAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-100, 0]
+                    })
+                  }]
                 }
               ]}
             />
