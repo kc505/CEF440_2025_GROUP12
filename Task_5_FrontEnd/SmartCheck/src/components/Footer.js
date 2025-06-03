@@ -1,38 +1,49 @@
+// src/components/Footer.js
+
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native'; // ✅ Hook for navigation
 
-const Footer = ({
-  activeTab = 'home',
-  onTabPress,
-  backgroundColor = '#fff'
-}) => {
+const Footer = ({ activeTab = 'home', backgroundColor = '#fff' }) => {
+  const navigation = useNavigation(); // ✅ Access navigation
+
   const tabs = [
     {
       id: 'home',
       label: 'Home',
       icon: 'home-outline',
-      activeIcon: 'home'
+      activeIcon: 'home',
+      screen: 'Home',
     },
     {
       id: 'dashboard',
       label: 'Dashboard',
       icon: 'grid-outline',
-      activeIcon: 'grid'
+      activeIcon: 'grid',
+      screen: 'StudentHome',
     },
     {
       id: 'profile',
       label: 'Profile',
       icon: 'person-outline',
-      activeIcon: 'person'
+      activeIcon: 'person',
+      screen: 'Profile', 
     },
     {
       id: 'dispute',
       label: 'Dispute',
       icon: 'alert-circle-outline',
-      activeIcon: 'alert-circle'
+      activeIcon: 'alert-circle',
+      screen: 'AttendanceLogin',
     }
   ];
+
+  const handleNavigation = (screen) => {
+    if (screen) {
+      navigation.navigate(screen);
+    }
+  };
 
   return (
     <View style={[styles.footer, { backgroundColor }]}>
@@ -42,7 +53,7 @@ const Footer = ({
           <TouchableOpacity
             key={tab.id}
             style={styles.tabButton}
-            onPress={() => onTabPress && onTabPress(tab.id)}
+            onPress={() => handleNavigation(tab.screen)}
             activeOpacity={0.7}
           >
             <Icon

@@ -23,16 +23,15 @@ const Tab = createBottomTabNavigator();
 // Stack Navigator for Course-related screens
 const CourseStack = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="MyCoursesMain"
         component={MyCoursesScreen}
-        options={{ title: 'My Courses' }}
+       
       />
       <Stack.Screen
         name="AttendanceHistory"
         component={AttendanceHistory}
-        options={{ title: 'Attendance History' }}
       />
     </Stack.Navigator>
   );
@@ -82,25 +81,21 @@ const MainTabNavigator = () => {
           fontWeight: '500',
           marginTop: 4,
         },
-        headerShown: true,
+        headerShown: false,
       })}
     >
-      <Tab.Screen
-        name="Home"
-        component={JoinClassScreen}
-        options={{ title: 'Student Dashboard' }}
-      />
-      <Tab.Screen
+   
+      <Tab.Screen 
         name="Dashboard"
         component={CourseStack}
         options={{ headerShown: false }}
       />
-      <Tab.Screen
+      <Tab.Screen // Edit this to profile
         name="Profile"
         component={HomeScreen}
         options={{ title: 'Home' }}
       />
-      <Tab.Screen
+      <Tab.Screen  // Edit this to Dispute
         name="Dispute"
         component={AttendanceLoginScreen}
         options={{ title: 'Attendance Login' }}
@@ -123,16 +118,14 @@ const App = () => {
           name="Login"
           component={Login}
           options={{
-            headerShown: true,
-            title: 'Login',
-            headerBackTitle: 'Back',
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="Signup"
           component={Signup}
           options={{
-            headerShown: true,
+            headerShown: false,
             title: 'Sign Up',
             headerBackTitle: 'Back',
           }}
@@ -148,7 +141,7 @@ const App = () => {
         />
         <Stack.Screen
           name="MyCourses"
-          component={MyCoursesScreen}
+          component={GeofenceAttendancePage}
           options={{
             headerShown: true,
             title: 'My Courses',

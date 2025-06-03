@@ -14,17 +14,14 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState ('home');
 
   const menuItems = [
-    { title: 'Check-in Attendance', screen: 'AttendanceLogin' },
+    { title: 'Attendance Login', screen: 'AttendanceLogin' },
     { title: 'Show Attendance', screen: 'AttendanceHistory' },
     { title: 'Create Dispute/Leave', screen: 'DisputeForm' },
     { title: 'View Course', screen: 'CourseList' },
   ];
 
   const handleNavigation = (screen) => {
-    if(!screen){
-      alert(`Navigation to ${screen}`);
-    }
-    else{navigation.navigate(screen);}
+   navigation.navigate(screen);
   };
 
   const renderItem = ({ item }) => (
