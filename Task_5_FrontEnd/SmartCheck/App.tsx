@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-// Import your JavaScript screens
+// Screens
 import SplashScreen from './src/screens/Aut/Splash';
 import Signup from './src/screens/Aut/Signup.js';
 import Login from './src/screens/Aut/Login.js';
@@ -20,45 +20,45 @@ import Footer from './src/components/Footer.js';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Stack Navigator for Course-related screens
-const CourseStack = () => {
+// ✅ CourseStack defined outside render
+function CourseStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="MyCoursesMain"
-        component={MyCoursesScreen}
-       
-      />
-      <Stack.Screen
-        name="AttendanceHistory"
-        component={AttendanceHistory}
-      />
+      <Stack.Screen name="MyCoursesMain" component={MyCoursesScreen} />
+      <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} />
     </Stack.Navigator>
   );
+}
+
+// ✅ Extract tabBarIcon renderer
+const getTabBarIcon = (routeName: string, focused: boolean, color: string, size: number) => {
+  let iconName: string = 'help-outline';
+
+  switch (routeName) {
+    case 'Home':
+      iconName = focused ? 'home' : 'home-outline';
+      break;
+    case 'Dashboard':
+      iconName = focused ? 'grid' : 'grid-outline';
+      break;
+    case 'Profile':
+      iconName = focused ? 'person' : 'person-outline';
+      break;
+    case 'Dispute':
+      iconName = focused ? 'alert-circle' : 'alert-circle-outline';
+      break;
+  }
+
+  return <Icon name={iconName} size={size} color={color} />;
 };
 
-// Main Tab Navigator with Footer
-const MainTabNavigator = () => {
+// ✅ MainTabNavigator without nested render functions
+function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: string;
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Dashboard') {
-            iconName = focused ? 'grid' : 'grid-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Dispute') {
-            iconName = focused ? 'alert-circle' : 'alert-circle-outline';
-          } else {
-            iconName = 'help-outline';
-          }
-
-          return <Icon name={iconName} size={size} color={color} />;
-        },
+        tabBarIcon: ({ focused, color, size }) =>
+          getTabBarIcon(route.name, focused, color, size),
         tabBarActiveTintColor: '#007AFF',
         tabBarInactiveTintColor: '#666',
         tabBarStyle: {
@@ -67,10 +67,7 @@ const MainTabNavigator = () => {
           borderTopWidth: 1,
           borderTopColor: '#E5E5E5',
           shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: -2,
-          },
+          shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
           elevation: 8,
@@ -84,61 +81,27 @@ const MainTabNavigator = () => {
         headerShown: false,
       })}
     >
-   
-      <Tab.Screen 
-        name="Dashboard"
-        component={CourseStack}
-        options={{ headerShown: false }}
-      />
-      <Tab.Screen // Edit this to profile
-        name="Profile"
-        component={HomeScreen}
-        options={{ title: 'Home' }}
-      />
-      <Tab.Screen  // Edit this to Dispute
-        name="Dispute"
-        component={AttendanceLoginScreen}
-        options={{ title: 'Attendance Login' }}
-      />
+      <Tab.Screen name="Dashboard" component={CourseStack} />
+      <Tab.Screen name="Profile" component={HomeScreen} options={{ title: 'Home' }} />
+      <Tab.Screen name="Dispute" component={AttendanceLoginScreen} options={{ title: 'Attendance Login' }} />
     </Tab.Navigator>
   );
-};
+}
 
-// App Component 
-const App = () => {
+// ✅ App root
+export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Splash"
-        screenOptions={{ headerShown: false }}
-      >
+      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
         {/* Auth Flow */}
         <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Signup"
-          component={Signup}
-          options={{
-            headerShown: false,
-            title: 'Sign Up',
-            headerBackTitle: 'Back',
-          }}
-        />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Signup" component={Signup} />
 
-        {/* Student Dashboard Flow */}
-        <Stack.Screen
-          name="StudentHome"
-          component={MainTabNavigator}
-          options={{
-            headerShown: false,
-          }}
-        />
+        {/* Student Dashboard */}
+        <Stack.Screen name="StudentHome" component={MainTabNavigator} />
+
+        {/* Attendance Flow */}
         <Stack.Screen
           name="MyCourses"
           component={GeofenceAttendancePage}
@@ -148,8 +111,6 @@ const App = () => {
             headerBackTitle: 'Dashboard',
           }}
         />
-
-        {/* Attendance Flow */}
         <Stack.Screen
           name="GeofenceAttendance"
           component={GeofenceAttendancePage}
@@ -177,26 +138,18 @@ const App = () => {
           }}
         />
 
-        {/* Legacy/Admin Screens */}
+        {/* Misc */}
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{
-            headerShown: true,
-            title: 'Home',
-          }}
+          options={{ headerShown: true, title: 'Home' }}
         />
         <Stack.Screen
           name="AttendanceLogin"
           component={AttendanceLoginScreen}
-          options={{
-            headerShown: true,
-            title: 'Attendance Login',
-          }}
+          options={{ headerShown: true, title: 'Attendance Login' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
-
-export default App;
+}
