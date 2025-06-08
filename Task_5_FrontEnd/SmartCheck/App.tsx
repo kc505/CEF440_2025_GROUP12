@@ -5,16 +5,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 // Import your JavaScript screens
-import SplashScreen from './src/screens/Aut/Splash';
-import Signup from './src/screens/Aut/Signup.js';
-import Login from './src/screens/Aut/Login.js';
-import JoinClassScreen from './src/screens/Home/Home.js';
+import SplashScreen from './src/screens/Student/Aut/Splash';
+import Signup from './src/screens/Student/Aut/Signup.js';
+import Login from './src/screens/Student/Aut/Login.js';
 import MyCoursesScreen from './src/screens/Student/StudentCoursesScreen.js';
 import GeofenceAttendancePage from './src/screens/Student/GeofenceScreen';
-import AttendanceHistory from './src/screens/CheckIn/AttendanceHistory';
-import FacialRecognitionScreen from './src/screens/CheckIn/FacialRecognition';
-import AttendanceLoginScreen from './src/screens/CheckIn/AttendanceLogin';
-import HomeScreen from './src/screens/Home/Home';
+import AttendanceHistory from './src/screens/Student/CheckIn/AttendanceHistory.js';
+import FacialRecognitionScreen from './src/screens/Student/CheckIn/FacialRecognition.js';
+import AttendanceLoginScreen from './src/screens/Student/CheckIn/AttendanceLogin.js';
+import HomeScreen from './src/screens/Student/Home/Home.js';
 import Footer from './src/components/Footer.js';
 
 const Stack = createNativeStackNavigator();
