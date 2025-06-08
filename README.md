@@ -129,7 +129,42 @@ git push origin your-feature-branch
 └── README.md
 ```
 
-
+## Backend Architecture
+```bash
+backend/
+│
+├── config/               # Firebase Admin SDK, DB config
+│   └── firebase.js
+│
+├── controllers/          # Business logic for each module
+│   ├── auth.controller.js
+│   ├── user.controller.js
+│   ├── course.controller.js
+│   ├── session.controller.js
+│   ├── attendance.controller.js
+│   └── dispute.controller.js
+│
+├── middleware/           # Auth & role protection
+│   ├── auth.middleware.js
+│   ├── role.middleware.js
+│
+├── routes/               # All API routes
+│   ├── auth.routes.js
+│   ├── user.routes.js
+│   ├── course.routes.js
+│   ├── session.routes.js
+│   ├── attendance.routes.js
+│   └── dispute.routes.js
+│
+├── services/             # Face recognition, email, notifications
+│   ├── face.service.js 
+|   ├── notifications.js  
+│   └── geofence.js
+|   
+│
+├── .env                  # Environment variables
+└── server.js             # Starts the server
+```
 ## 💡 Tips
 
 - Enable camera and location permissions on your device.
