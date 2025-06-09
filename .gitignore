@@ -7,3 +7,5 @@ firebase-adminsdk-*.json
 *.pem
 *.key
 config/secrets*
+package-lock.json
+pnpm-lock.yaml
