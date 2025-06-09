@@ -132,7 +132,6 @@ git push origin your-feature-branch
 ## Backend Architecture
 ```bash
 backend/
-│
 ├── config/               # Firebase Admin SDK, DB config
 │   └── firebase.js
 │
@@ -159,9 +158,7 @@ backend/
 ├── services/             # Face recognition, email, notifications
 │   ├── face.service.js 
 |   ├── notifications.js  
-│   └── geofence.js
-|   
-│
+│   └── geofence.js 
 ├── .env                  # Environment variables
 └── server.js             # Starts the server
 ```
