@@ -1,0 +1,9 @@
+serviceAccountKey.json*
+*serviceAccountKey*
+
+#Security and sensitive files
+serviceAccountKey*.json
+firebase-adminsdk-*.json
+*.pem
+*.key
+config/secrets*
