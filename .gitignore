@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 serviceAccountKey.json*
 *serviceAccountKey*
 
@@ -9,3 +10,11 @@ firebase-adminsdk-*.json
 config/secrets*
 package-lock.json
 pnpm-lock.yaml
+=======
+Task_5_FrontEnd\SmartCheck\android\app\build\
+
+Task_5_FrontEnd\SmartCheck\node_modules\
+
+Task_6_BackEnd\backend\node_modules\
+
+>>>>>>> bd551ffa7579d7313bba37910576f5e461825d4d
