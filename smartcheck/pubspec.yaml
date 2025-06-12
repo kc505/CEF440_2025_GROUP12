@@ -1,0 +1,69 @@
+name: smartcheck
+description: "A mobile attendance system with facial recognition and geofencing"
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+ # State management
+  provider: ^6.1.1
+  
+  
+  # HTTP requests (for backend integration)
+  http: ^1.1.0
+  
+  # Storage
+  shared_preferences: ^2.2.2
+  
+  # Charts
+  fl_chart: ^0.65.0
+  
+  # Location services (for geofencing)
+  geolocator: ^10.1.0
+  permission_handler: ^11.1.0
+  
+  # Camera (for facial recognition)
+  camera: ^0.10.5+5
+  image_picker: ^1.0.4
+  
+  # File handling
+  file_picker: ^6.1.1
+  path_provider: ^2.1.1
+  
+  # Date and time formatting
+  intl: ^0.18.1
+
+  cupertino_icons: ^1.0.8
+
+  # Image handling
+  image: ^4.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+  #fonts:
+   # - family: Roboto
+   #   fonts:
+   #     - asset: fonts/Roboto-Regular.ttf
+     #   - asset: fonts/Roboto-Bold.ttf
+     #     weight: 700
+
+
