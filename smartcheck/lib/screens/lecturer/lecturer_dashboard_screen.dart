@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smartcheck/utils/app_theme.dart';
 
 class LecturerDashboardScreen extends StatefulWidget {
-  const LecturerDashboardScreen({Key? key}) : super(key: key);
+  const LecturerDashboardScreen({super.key});
 
   @override
   State<LecturerDashboardScreen> createState() => _LecturerDashboardScreenState();

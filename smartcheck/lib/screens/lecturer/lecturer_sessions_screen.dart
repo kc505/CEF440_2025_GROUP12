@@ -4,7 +4,7 @@ import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/models/course.dart';
 
 class LecturerSessionsScreen extends StatefulWidget {
-  const LecturerSessionsScreen({Key? key}) : super(key: key);
+  const LecturerSessionsScreen({super.key});
 
   @override
   State<LecturerSessionsScreen> createState() => _LecturerSessionsScreenState();

@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "RNMapsSpecs_autolinked_build",
+		"source" : "C:/Users/Hp/Desktop/CEF440_2025_GROUP12/Task_5_FrontEnd/SmartCheck/node_modules/react-native-maps/android/src/main/jni"
+	}
+}

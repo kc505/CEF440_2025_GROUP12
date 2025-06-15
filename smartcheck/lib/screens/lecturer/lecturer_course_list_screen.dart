@@ -5,7 +5,7 @@ import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/models/course.dart';
 
 class LecturerCourseListScreen extends StatefulWidget {
-  const LecturerCourseListScreen({Key? key}) : super(key: key);
+  const LecturerCourseListScreen({super.key});
 
   @override
   State<LecturerCourseListScreen> createState() => _LecturerCourseListScreenState();
@@ -215,10 +215,10 @@ class CourseCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const CourseCard({
-    Key? key,
+    super.key,
     required this.course,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

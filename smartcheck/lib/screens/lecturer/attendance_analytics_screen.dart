@@ -6,9 +6,9 @@ class AttendanceAnalyticsScreen extends StatefulWidget {
   final Course course;
 
   const AttendanceAnalyticsScreen({
-    Key? key,
+    super.key,
     required this.course,
-  }) : super(key: key);
+  });
 
   @override
   State<AttendanceAnalyticsScreen> createState() => _AttendanceAnalyticsScreenState();

@@ -11,10 +11,10 @@ class SessionAttendanceScreen extends StatefulWidget {
   final Map<String, dynamic> sessionDetails;
 
   const SessionAttendanceScreen({
-    Key? key,
+    super.key,
     required this.course,
     required this.sessionDetails,
-  }) : super(key: key);
+  });
 
   @override
   State<SessionAttendanceScreen> createState() => _SessionAttendanceScreenState();
@@ -23,7 +23,7 @@ class SessionAttendanceScreen extends StatefulWidget {
 class _SessionAttendanceScreenState extends State<SessionAttendanceScreen> {
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
-  bool _isProcessing = false;
+  final bool _isProcessing = false;
   bool _isSessionActive = true;
   List<Map<String, dynamic>> _recognizedStudents = [];
   String _statusMessage = 'Initializing camera...';

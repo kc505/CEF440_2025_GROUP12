@@ -9,11 +9,11 @@ class EditAttendanceScreen extends StatefulWidget {
   final List<Map<String, dynamic>> recognizedStudents;
 
   const EditAttendanceScreen({
-    Key? key,
+    super.key,
     required this.course,
     required this.sessionDetails,
     required this.recognizedStudents,
-  }) : super(key: key);
+  });
 
   @override
   State<EditAttendanceScreen> createState() => _EditAttendanceScreenState();

@@ -10,9 +10,9 @@ class CreateSessionScreen extends StatefulWidget {
   final Course course;
 
   const CreateSessionScreen({
-    Key? key,
+    super.key,
     required this.course,
-  }) : super(key: key);
+  });
 
   @override
   State<CreateSessionScreen> createState() => _CreateSessionScreenState();

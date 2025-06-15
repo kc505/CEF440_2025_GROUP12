@@ -8,7 +8,7 @@ import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/widgets/app_logo.dart';
 
 class LecturerHomeScreen extends StatefulWidget {
-  const LecturerHomeScreen({Key? key}) : super(key: key);
+  const LecturerHomeScreen({super.key});
 
   @override
   State<LecturerHomeScreen> createState() => _LecturerHomeScreenState();
@@ -30,8 +30,6 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            const AppLogo(height: 32),
-            const SizedBox(width: 8),
             const Text('Lecturer'),
           ],
         ),

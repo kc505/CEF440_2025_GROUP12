@@ -7,7 +7,7 @@ import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/services/preferences_service.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();

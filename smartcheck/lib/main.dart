@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:smartcheck/providers/auth_provider.dart';
+import 'package:smartcheck/providers/theme_provider.dart'; // Added this import
 import 'package:smartcheck/screens/splash/splash_screen.dart';
 import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/services/camera_service.dart';
@@ -32,6 +33,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()), // Added ThemeProvider
       ],
       child: const MyApp(),
     ),
@@ -39,15 +41,19 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SmartCheck',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+    return Consumer<ThemeProvider>( // Wrapped with Consumer to listen to theme changes
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'SmartCheck',
+          debugShowCheckedModeBanner: false,
+          theme: themeProvider.currentTheme, // Use ThemeProvider's currentTheme
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }

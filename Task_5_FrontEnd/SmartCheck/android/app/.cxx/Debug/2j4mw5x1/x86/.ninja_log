@@ -1,0 +1,10 @@
+# ninja log v5
+7	88	7706774306636134	C:/Users/Hp/Desktop/CEF440_2025_GROUP12/Task_5_FrontEnd/SmartCheck/android/app/.cxx/Debug/2j4mw5x1/x86/CMakeFiles/cmake.verify_globs	7731c0b55cf89a08
+234	61136	7705833201111908	CMakeFiles/appmodules.dir/2bd06147d9244cfeaedd6639e1521631/SmartCheck/android/app/build/generated/autolinking/src/main/jni/autolinking.cpp.o	fa2763bf771b3c33
+53	754	7706774346303728	build.ninja	f996a55aa94194bf
+221	69278	7705833289533690	CMakeFiles/appmodules.dir/OnLoad.cpp.o	e2d627e5f519bab0
+69279	74226	7705833338691360	C:/Users/Hp/Desktop/CEF440_2025_GROUP12/Task_5_FrontEnd/SmartCheck/android/app/build/intermediates/cxx/Debug/2j4mw5x1/obj/x86/libappmodules.so	2ebed5325588f2c5
+0	12	0	clean	a6f3395905a55ca6
+89	5610	7706774346303728	build.ninja	f996a55aa94194bf
+3	218	0	C:/Users/Hp/Desktop/CEF440_2025_GROUP12/Task_5_FrontEnd/SmartCheck/android/app/.cxx/Debug/2j4mw5x1/x86/CMakeFiles/cmake.verify_globs	7731c0b55cf89a08
+0	87	0	clean	a6f3395905a55ca6

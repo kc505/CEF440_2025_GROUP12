@@ -11,9 +11,9 @@ class LecturerCourseDetailScreen extends StatefulWidget {
   final Course course;
 
   const LecturerCourseDetailScreen({
-    Key? key,
+    super.key,
     required this.course,
-  }) : super(key: key);
+  });
 
   @override
   State<LecturerCourseDetailScreen> createState() => _LecturerCourseDetailScreenState();
@@ -81,7 +81,7 @@ class _LecturerCourseDetailScreenState extends State<LecturerCourseDetailScreen>
           children: [
             const AppLogo(height: 28),
             const SizedBox(width: 8),
-            Text('${widget.course.code}'),
+            Text(widget.course.code),
           ],
         ),
         leading: IconButton(

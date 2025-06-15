@@ -5,7 +5,7 @@ import 'package:smartcheck/screens/auth/login_screen.dart';
 import 'package:smartcheck/utils/app_theme.dart';
 
 class LecturerProfileScreen extends StatefulWidget {
-  const LecturerProfileScreen({Key? key}) : super(key: key);
+  const LecturerProfileScreen({super.key});
 
   @override
   State<LecturerProfileScreen> createState() => _LecturerProfileScreenState();

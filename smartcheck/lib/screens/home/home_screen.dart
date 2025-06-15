@@ -8,7 +8,7 @@ import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/widgets/app_logo.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -24,11 +24,88 @@ class _HomeScreenState extends State<HomeScreen> {
     const DisputeScreen(),
   ];
 
+  void _showJoinClassDialog() {
+    final TextEditingController codeController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Join Class'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Enter the class code to join:'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: codeController,
+                decoration: const InputDecoration(
+                  labelText: 'Class Code',
+                  border: OutlineInputBorder(),
+                  hintText: 'e.g., ABC123',
+                ),
+                textCapitalization: TextCapitalization.characters,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (codeController.text.isNotEmpty) {
+                  // Handle join class logic here
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Joining class with code: ${codeController.text}'),
+                      backgroundColor: AppTheme.primaryColor,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a class code'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Join'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const AppLogo(height: 32),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 16.0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'SmartCheck',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        leadingWidth: 120,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
@@ -44,6 +121,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: _screens[_currentIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showJoinClassDialog,
+        backgroundColor: AppTheme.primaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {

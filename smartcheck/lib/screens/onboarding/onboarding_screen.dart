@@ -4,7 +4,7 @@ import 'package:smartcheck/services/preferences_service.dart';
 import 'package:smartcheck/utils/app_theme.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({Key? key}) : super(key: key);
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();

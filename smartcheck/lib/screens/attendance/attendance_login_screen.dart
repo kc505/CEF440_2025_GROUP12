@@ -7,9 +7,9 @@ class AttendanceLoginScreen extends StatefulWidget {
   final Course course;
 
   const AttendanceLoginScreen({
-    Key? key,
+    super.key,
     required this.course,
-  }) : super(key: key);
+  });
 
   @override
   State<AttendanceLoginScreen> createState() => _AttendanceLoginScreenState();

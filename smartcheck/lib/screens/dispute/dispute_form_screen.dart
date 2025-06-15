@@ -6,7 +6,7 @@ import 'package:smartcheck/widgets/custom_text_field.dart';
 import 'package:smartcheck/services/file_service.dart';
 
 class DisputeFormScreen extends StatefulWidget {
-  const DisputeFormScreen({Key? key}) : super(key: key);
+  const DisputeFormScreen({super.key});
 
   @override
   State<DisputeFormScreen> createState() => _DisputeFormScreenState();
