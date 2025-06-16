@@ -8,7 +8,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import Header from '../../../components/Header';
+import Header from '../../components/Header';
 
 const FacialRecognition = () => {
   const cameraRef = useRef(null);

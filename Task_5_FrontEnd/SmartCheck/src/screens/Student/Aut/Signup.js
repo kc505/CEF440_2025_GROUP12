@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import Button from '../../../components/Button';
+import Button from '../../components/Button';
 
 const Signup = () => {
   const navigation = useNavigation();
