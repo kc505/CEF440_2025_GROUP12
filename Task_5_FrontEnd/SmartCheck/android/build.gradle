@@ -1,3 +1,4 @@
+// ✅ buildscript comes first
 buildscript {
     ext {
         buildToolsVersion = "35.0.0"
@@ -5,17 +6,45 @@ buildscript {
         compileSdkVersion = 35
         targetSdkVersion = 35
         ndkVersion = "27.1.12297006"
-        kotlinVersion = "2.0.21"
+        kotlinVersion = "1.9.24"
     }
+
     repositories {
         google()
         mavenCentral()
     }
+
     dependencies {
-        classpath("com.android.tools.build:gradle")
-        classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("com.android.tools.build:gradle:8.2.2")
+
     }
 }
 
-apply plugin: "com.facebook.react.rootproject"
+// ✅ Now the plugins block can come
+plugins {
+    id 'com.android.application' version '8.2.2'
+    id 'com.facebook.react' version '0.73.0' apply false // Adjust this version if needed
+}
+
+
+android {
+    namespace "com.smartcheck"
+    compileSdkVersion 35
+
+    defaultConfig {
+        applicationId "com.smartcheck"
+        minSdkVersion 24
+        targetSdkVersion 35
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // Add any other android configurations here
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        google()
+    }
+}

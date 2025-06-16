@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet
 } from 'react-native';
-import CourseProfile from '../../../components/Course';
+import CourseProfile from '../../components/Course';
 //import Img from '../../assets/splash.png'
 
 const MyCoursesScreen = () => {
