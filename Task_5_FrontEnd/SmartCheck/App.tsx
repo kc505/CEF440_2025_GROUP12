@@ -138,7 +138,25 @@ const App = () => {
             headerShown: false,
           }}
         />
-        
+        <Stack.Screen
+          name="MyCourses"
+          component={GeofenceAttendancePage}
+          options={{
+            headerShown: true,
+            title: 'My Courses',
+            headerBackTitle: 'Dashboard',
+          }}
+        />
+
+        {/* Attendance Flow */}
+        <Stack.Screen
+          name="GeofenceAttendance"
+          component={GeofenceAttendancePage}
+          options={{
+            headerShown: false,
+            title: 'Location Verification',
+          }}
+        />
         <Stack.Screen
           name="FacialRecognition"
           component={FacialRecognitionScreen}
