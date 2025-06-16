@@ -1,0 +1,10 @@
+Task_5_FrontEnd\SmartCheck\android\app\build\
+
+Task_5_FrontEnd\SmartCheck\node_modules\
+
+Task_6_BackEnd\backend\node_modules\
+
+# Environment variables and secrets
+.env
+
+Task_6_BackEnd\backend\firebaseServiceKey.json
