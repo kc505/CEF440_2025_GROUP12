@@ -31,3 +31,37 @@ module.exports = {
   db,
   auth,
 };
+
+// User Collection Sample
+const user = {
+  userID: "user002",
+  username: "ash",
+  password: "...",
+  firstName: "Mekole",
+  lastName: "Ashley",
+  email: "mekoleash@gmail.com",
+  role: "Lecturer", // or "Lecturer", "Admin"
+  phoneNumber: "677030466",
+  registrationDate: new Date(),
+  profileImageURL: "...",
+
+  // Student Fields
+  matriculeNumber: " ",
+  department: "Computer Engineering",
+  program: " ",
+  admissionYear: 2023,
+
+  // Lecturer Fields
+  employeeNumber: "FET002",
+  specialization: "Software Engineering",
+  officeLocation: "005",
+};
+
+// Create the user document
+db.collection("users").doc(user.userID).set(user)
+  .then(() => {
+    console.log("User added successfully.");
+  })
+  .catch((error) => {
+    console.error("Error adding user:", error);
+  });
