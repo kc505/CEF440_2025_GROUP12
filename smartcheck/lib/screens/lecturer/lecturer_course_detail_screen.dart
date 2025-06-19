@@ -38,10 +38,11 @@ class _LecturerCourseDetailScreenState extends State<LecturerCourseDetailScreen>
     if (mounted) {
       setState(() {
         _courseDetails = {
-          'department': 'Computer Engineering',
-          'totalStudents': 45,
+          'department': widget.course.department ?? 'Computer Engineering',
+          'totalStudents': widget.course.totalStudents ?? 45,
           'averageAttendance': '85%',
-          'totalSessions': 12,
+          'totalSessions': widget.course.totalSessions ?? 12,
+          'completedSessions': widget.course.completedSessions ?? 8,
         };
         
         _recentSessions = [
@@ -219,8 +220,8 @@ class _LecturerCourseDetailScreenState extends State<LecturerCourseDetailScreen>
           children: [
             Expanded(
               child: _buildStatCard(
-                'Total Sessions',
-                _courseDetails['totalSessions'].toString(),
+                'Sessions',
+                '${_courseDetails['completedSessions']}/${_courseDetails['totalSessions']}',
                 Icons.calendar_today,
                 AppTheme.accentColor,
               ),

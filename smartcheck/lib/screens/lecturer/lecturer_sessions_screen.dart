@@ -39,9 +39,30 @@ class _LecturerSessionsScreenState extends State<LecturerSessionsScreen>
     if (mounted) {
       setState(() {
         _courses = [
-          Course(id: '1', code: 'CEF472', name: 'Human Computer Interface', status: 'Active'),
-          Course(id: '2', code: 'EEF470', name: 'Feedback Systems Laboratory', status: 'Active'),
-          Course(id: '3', code: 'CEF440', name: 'Internet Programming', status: 'Active'),
+          Course(
+            id: '1', 
+            code: 'CEF472', 
+            name: 'Human Computer Interface', 
+            status: 'Active', 
+            title: '', 
+            description: '', 
+            credits: 3,),
+          Course(
+            id: '2', 
+            code: 'EEF470', 
+            name: 'Feedback Systems Laboratory', 
+            status: 'Active',
+            title: '', 
+            description: '', 
+            credits: 3,),
+          Course(
+            id: '3', 
+            code: 'CEF440', 
+            name: 'Internet Programming', 
+            status: 'Active',
+            title: '', 
+            description: '', 
+            credits: 3,),
         ];
         
         _upcomingSessions = [

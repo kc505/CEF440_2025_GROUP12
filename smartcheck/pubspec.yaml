@@ -1,69 +1,64 @@
 name: smartcheck
-description: "A mobile attendance system with facial recognition and geofencing"
-
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
+description: "Mobile-Based Attendance Management System Based on Geofencing and Facial Recognition"
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.2
-
+  sdk: '>=3.1.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
- # State management
+  
+  # UI & Navigation
+  cupertino_icons: ^1.0.6
   provider: ^6.1.1
   
-  
-  # HTTP requests (for backend integration)
-  http: ^1.1.0
-  
-  # Storage
-  shared_preferences: ^2.2.2
-  
-  # Charts
-  fl_chart: ^0.65.0
-  
-  # Location services (for geofencing)
+  # Maps & Location
+  google_maps_flutter: ^2.5.0
+  google_maps_flutter_web: ^0.5.4+2
   geolocator: ^10.1.0
-  permission_handler: ^11.1.0
   
-  # Camera (for facial recognition)
+  # Camera & Image
   camera: ^0.10.5+5
   image_picker: ^1.0.4
   
-  # File handling
-  file_picker: ^6.1.1
-  path_provider: ^2.1.1
+  # Storage & Preferences
+  shared_preferences: ^2.2.2
   
-  # Date and time formatting
+  # HTTP & Networking
+  http: ^1.1.0
+  
+  # File & Document handling
+  path_provider: ^2.1.1
+  pdf: ^3.10.7
+  excel: ^2.1.0
+  
+  # Notifications
+  flutter_local_notifications: ^16.3.0
+  
+  # Utilities
   intl: ^0.18.1
-
-  cupertino_icons: ^1.0.8
-
-  # Image handling
-  image: ^4.1.3
+  fl_chart: ^1.0.0
+  file_picker: ^10.2.0
+  permission_handler: ^12.0.0+1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^5.0.0
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+  
   assets:
     - assets/images/
-  #fonts:
-   # - family: Roboto
-   #   fonts:
-   #     - asset: fonts/Roboto-Regular.ttf
-     #   - asset: fonts/Roboto-Bold.ttf
-     #     weight: 700
-
-
+ #   - assets/icons/
+  
+ # fonts:
+ #   - family: Roboto
+ #     fonts:
+  #      - asset: fonts/Roboto-Regular.ttf
+  #      - asset: fonts/Roboto-Bold.ttf
+   #       weight: 700

@@ -1,63 +1,151 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smartcheck/models/student.dart';
+
+enum UserRole { student, lecturer, admin }
 
 class AuthProvider with ChangeNotifier {
   bool _isAuthenticated = false;
+  UserRole? _userRole;
+  Map<String, dynamic>? _userData;
   String? _token;
-  String? _userId;
-  String? _userName;
-  String? _userEmail;
-  String? _userRole; // 'student' or 'lecturer'
+  Student? _currentUser;
 
   bool get isAuthenticated => _isAuthenticated;
+  UserRole? get userRole => _userRole;
+  Map<String, dynamic>? get userData => _userData;
   String? get token => _token;
-  String? get userId => _userId;
-  String? get userName => _userName;
-  String? get userEmail => _userEmail;
-  String? get userRole => _userRole;
+  Student? get currentUser => _currentUser;
 
-  // Constructor to load saved data
-  AuthProvider() {
-    _loadUserData();
-  }
-
-  // This is a placeholder for actual authentication logic
-  // In a real app, this would make API calls to your backend
-  Future<bool> login(String email, String password, String role) async {
+  // Student login with matricule number, email, and password
+  Future<bool> loginStudent(String matricule, String email, String password) async {
     try {
-      // TODO: Implement actual API call to backend with role parameter
-      // Simulating successful login
-      _isAuthenticated = true;
-      _token = 'sample_token';
-      _userId = '123';
-      _userName = role == 'lecturer' ? 'Dr. Smith' : 'John Doe';
-      _userEmail = email;
-      _userRole = role;
+      // TODO: Implement actual API call to backend for student login
+      // Simulate API call delay
+      await Future.delayed(const Duration(seconds: 2));
       
-      // Save user data
-      await _saveUserData();
+      // Mock successful login with proper Student model
+      _isAuthenticated = true;
+      _userRole = UserRole.student;
+      _token = 'student_token_${DateTime.now().millisecondsSinceEpoch}';
+      
+      // Create current user with the new Student model structure
+      _currentUser = Student(
+        id: 'STU001',
+        username: 'ash',
+        password: password, // In real app, this would be hashed
+        firstName: 'Mekole',
+        lastName: 'Ashley',
+        email: 'mekoleash@gmail.com',
+        role: 'Student',
+        phoneNumber: '677030466',
+        registrationDate: DateTime.now().subtract(const Duration(days: 365)),
+        profileImageURL: null,
+        matriculeNumber: matricule,
+        department: 'Computer Engineering',
+        program: 'BEng Computer Engineering',
+        admissionYear: 2023,
+        enrolledCourses: ['CE101', 'MAT101', 'PHY101'],
+        academicStatus: 'Active',
+        gpa: 3.75,
+        totalCredits: 45,
+      );
+      
+      _userData = {
+        'matricule': matricule,
+        'email': email,
+        'name': _currentUser!.fullName,
+        'role': 'student',
+        'firstName': _currentUser!.firstName,
+        'lastName': _currentUser!.lastName,
+        'username': _currentUser!.username,
+        'department': _currentUser!.department,
+        'program': _currentUser!.program,
+      };
       
       notifyListeners();
       return true;
     } catch (e) {
-      print('Login error: $e');
+      print('Student login error: $e');
       return false;
     }
   }
 
+  // Lecturer login with faculty number, email, and password
+  Future<bool> loginLecturer(String facultyNumber, String email, String password) async {
+    try {
+      // TODO: Implement actual API call to backend for lecturer login
+      // Simulate API call delay
+      await Future.delayed(const Duration(seconds: 2));
+      
+      // Mock successful login
+      _isAuthenticated = true;
+      _userRole = UserRole.lecturer;
+      _token = 'lecturer_token_${DateTime.now().millisecondsSinceEpoch}';
+      _userData = {
+        'facultyNumber': facultyNumber,
+        'email': email,
+        'name': 'Dr. Jane Smith', // This would come from API response
+        'role': 'lecturer',
+      };
+      
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print('Lecturer login error: $e');
+      return false;
+    }
+  }
+
+  // Admin login with email and password only
+  Future<bool> loginAdmin(String email, String password) async {
+    try {
+      // TODO: Implement actual API call to backend for admin login
+      // Simulate API call delay
+      await Future.delayed(const Duration(seconds: 2));
+      
+      // Mock successful login
+      _isAuthenticated = true;
+      _userRole = UserRole.admin;
+      _token = 'admin_token_${DateTime.now().millisecondsSinceEpoch}';
+      _userData = {
+        'email': email,
+        'name': 'System Administrator', // This would come from API response
+        'role': 'admin',
+      };
+      
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print('Admin login error: $e');
+      return false;
+    }
+  }
+
+  // Signup method (existing)
   Future<bool> signup(String name, String email, String password, String role) async {
     try {
       // TODO: Implement actual API call to backend with role parameter
       // Simulating successful signup
       _isAuthenticated = true;
       _token = 'sample_token';
-      _userId = '123';
-      _userName = name;
-      _userEmail = email;
-      _userRole = role;
+      _userData = {
+        'name': name,
+        'email': email,
+        'role': role,
+      };
       
-      // Save user data
-      await _saveUserData();
+      // Set user role based on signup role
+      switch (role) {
+        case 'student':
+          _userRole = UserRole.student;
+          break;
+        case 'lecturer':
+          _userRole = UserRole.lecturer;
+          break;
+        case 'admin':
+          _userRole = UserRole.admin;
+          break;
+      }
       
       notifyListeners();
       return true;
@@ -67,68 +155,31 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Update current user
+  void updateCurrentUser(Student updatedUser) {
+    _currentUser = updatedUser;
+    _userData = {
+      'matricule': updatedUser.matriculeNumber,
+      'email': updatedUser.email,
+      'name': updatedUser.fullName,
+      'role': updatedUser.role.toLowerCase(),
+      'firstName': updatedUser.firstName,
+      'lastName': updatedUser.lastName,
+      'username': updatedUser.username,
+      'department': updatedUser.department,
+      'program': updatedUser.program,
+    };
+    notifyListeners();
+  }
+
   void logout() {
+    // TODO: Implement API call to invalidate token on backend
     _isAuthenticated = false;
     _token = null;
-    _userId = null;
-    _userName = null;
-    _userEmail = null;
+    _userData = null;
     _userRole = null;
-    
-    // Clear saved data
-    _clearUserData();
+    _currentUser = null;
     
     notifyListeners();
-  }
-
-  // ===== ADDITIONAL METHODS FOR PROFILE MANAGEMENT =====
-
-  // Load user data from SharedPreferences
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    _isAuthenticated = prefs.getBool('is_authenticated') ?? false;
-    _token = prefs.getString('token');
-    _userId = prefs.getString('user_id');
-    _userName = prefs.getString('user_name');
-    _userEmail = prefs.getString('user_email');
-    _userRole = prefs.getString('user_role');
-    notifyListeners();
-  }
-
-  // Save user data to SharedPreferences
-  Future<void> _saveUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_authenticated', _isAuthenticated);
-    if (_token != null) await prefs.setString('token', _token!);
-    if (_userId != null) await prefs.setString('user_id', _userId!);
-    if (_userName != null) await prefs.setString('user_name', _userName!);
-    if (_userEmail != null) await prefs.setString('user_email', _userEmail!);
-    if (_userRole != null) await prefs.setString('user_role', _userRole!);
-  }
-
-  // Clear user data from SharedPreferences
-  Future<void> _clearUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-  }
-
-  // Update user name
-  Future<void> updateUserName(String newName) async {
-    _userName = newName;
-    await _saveUserData();
-    notifyListeners();
-  }
-
-  // Update user email
-  Future<void> updateUserEmail(String newEmail) async {
-    _userEmail = newEmail;
-    await _saveUserData();
-    notifyListeners();
-  }
-
-  // Check authentication status (for app initialization)
-  Future<bool> checkAuthStatus() async {
-    await _loadUserData();
-    return _isAuthenticated;
   }
 }

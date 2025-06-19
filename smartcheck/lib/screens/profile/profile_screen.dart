@@ -38,6 +38,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  String _getDisplayName(AuthProvider authProvider) {
+    if (authProvider.currentUser != null) {
+      return authProvider.currentUser!.fullName;
+    }
+    if (authProvider.userData != null && authProvider.userData!['name'] != null) {
+      return authProvider.userData!['name'];
+    }
+    return 'User Name';
+  }
+
+  String _getDisplayEmail(AuthProvider authProvider) {
+    if (authProvider.currentUser != null) {
+      return authProvider.currentUser!.email;
+    }
+    if (authProvider.userData != null && authProvider.userData!['email'] != null) {
+      return authProvider.userData!['email'];
+    }
+    return 'user@example.com';
+  }
+
+  String _getInitials(AuthProvider authProvider) {
+    if (authProvider.currentUser != null) {
+      return authProvider.currentUser!.initials;
+    }
+    final name = _getDisplayName(authProvider);
+    final parts = name.split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    } else if (parts.isNotEmpty) {
+      return parts[0].substring(0, 1).toUpperCase();
+    }
+    return 'U';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthProvider, ThemeProvider>(
@@ -49,8 +83,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Student Profile',
+                  Text(
+                    authProvider.userRole == UserRole.student 
+                        ? 'Student Profile'
+                        : authProvider.userRole == UserRole.lecturer
+                            ? 'Lecturer Profile'
+                            : 'Admin Profile',
                     style: AppTheme.headingStyle,
                   ),
                   const SizedBox(height: 24),
@@ -68,10 +106,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           CircleAvatar(
                             radius: 40,
                             backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                            child: _profileImage == null
+                            backgroundImage: _profileImage != null 
+                                ? FileImage(_profileImage!) 
+                                : (authProvider.currentUser?.profileImageURL != null 
+                                    ? NetworkImage(authProvider.currentUser!.profileImageURL!) 
+                                    : null) as ImageProvider?,
+                            child: (_profileImage == null && 
+                                   (authProvider.currentUser?.profileImageURL == null || 
+                                    authProvider.currentUser?.profileImageURL?.isEmpty == true))
                                 ? Text(
-                                    authProvider.userName?.substring(0, 2).toUpperCase() ?? 'JF',
+                                    _getInitials(authProvider),
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -86,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  authProvider.userName ?? 'Joe Frank',
+                                  _getDisplayName(authProvider),
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -94,12 +138,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  authProvider.userEmail ?? 'joe.frank@example.com',
+                                  _getDisplayEmail(authProvider),
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: AppTheme.textSecondaryColor,
                                   ),
                                 ),
+                                if (authProvider.currentUser != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${authProvider.currentUser!.department} • ${authProvider.currentUser!.program}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppTheme.textSecondaryColor,
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -122,22 +176,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                   ),
-                  _buildMenuItem(
-                    icon: Icons.person,
-                    title: 'Student Details',
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const StudentDetailsScreen(),
-                        ),
-                      );
-                      // Refresh profile image when returning from details screen
-                      if (result == true || result == null) {
-                        _loadProfileImage();
-                      }
-                    },
-                  ),
+                  if (authProvider.userRole == UserRole.student)
+                    _buildMenuItem(
+                      icon: Icons.person,
+                      title: 'Student Details',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const StudentDetailsScreen(),
+                          ),
+                        );
+                        // Refresh profile image when returning from details screen
+                        if (result == true || result == null) {
+                          _loadProfileImage();
+                        }
+                      },
+                    ),
                   _buildSwitchMenuItem(
                     icon: Icons.dark_mode,
                     title: 'Dark Mode',
