@@ -6,3 +6,6 @@ Task_6_BackEnd\backend\node_modules\
 
 # Environment variables and secrets
 .env
+# Firebase service key file
+Task_6_BackEnd\backend\firebaseservicekey.json
+

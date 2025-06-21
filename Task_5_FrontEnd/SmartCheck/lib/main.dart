@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // <-- import the generated config
 import 'package:provider/provider.dart';
 import 'package:smartcheck/providers/auth_provider.dart';
-import 'package:smartcheck/providers/theme_provider.dart'; // Added this import
+import 'package:smartcheck/providers/theme_provider.dart';
 import 'package:smartcheck/screens/splash/splash_screen.dart';
 import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/services/camera_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Set preferred orientations to portrait only
-  SystemChrome.setPreferredOrientations([
+
+  // Initialize Firebase with options
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Lock orientation to portrait
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
-  // Set status bar style
+
+  // Set status bar styles
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -25,15 +32,15 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   // Initialize cameras
   await CameraService.initializeCameras();
-  
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()), // Added ThemeProvider
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -45,12 +52,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>( // Wrapped with Consumer to listen to theme changes
+    return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
           title: 'SmartCheck',
           debugShowCheckedModeBanner: false,
-          theme: themeProvider.currentTheme, // Use ThemeProvider's currentTheme
+          theme: themeProvider.currentTheme,
           home: const SplashScreen(),
         );
       },

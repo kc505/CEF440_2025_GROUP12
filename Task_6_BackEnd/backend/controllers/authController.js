@@ -8,18 +8,16 @@ exports.signup = async (req, res) => {
   }
 
   try {
-    // Firebase Authentication
+    // Create user in Firebase Auth
     const userRecord = await admin.auth().createUser({
       email,
       password,
       displayName: `${firstName} ${lastName}`,
     });
 
-    const uid = userRecord.uid;
-
-    // Firestore Profile
-    await firestoreDb.collection('userProfiles').doc(uid).set({
-      uid,
+    // Create user profile in Firestore
+    await firestoreDb.collection('userProfiles').doc(userRecord.uid).set({
+      uid: userRecord.uid,
       email,
       firstName,
       lastName,
@@ -30,78 +28,52 @@ exports.signup = async (req, res) => {
     });
 
     res.status(201).json({
-      message: 'User registered successfully. Please login.',
-      uid,
-      email: userRecord.email,
+      message: 'User registered successfully. Please login using the client SDK.',
+      uid: userRecord.uid,
+      email: userRecord.email
     });
 
   } catch (error) {
-    console.error('Error during signup:', error);
+    console.error('Signup error:', error);
     if (error.code === 'auth/email-already-exists') {
       return res.status(409).json({ message: 'Email already in use.' });
     }
     if (error.code === 'auth/weak-password') {
       return res.status(400).json({ message: 'Password too weak.' });
     }
-    res.status(500).json({ message: 'Failed to register user.', error: error.message });
+    res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 };
 
-
-// 2. LOGIN CONTROLLER --- A NOTE ON BEST PRACTICE
-// In a typical Firebase flow, a backend `/login` route is NOT needed.
-// The standard flow is:
-// 1. Client uses Firebase Client SDK to call `signInWithEmailAndPassword()`.
-// 2. Firebase sends an ID Token directly to the client.
-// 3. Client stores this token and includes it in the `Authorization: Bearer <token>` header for all future requests.
-// 4. Client can immediately call a protected route like `/auth/me` to get the user's profile.
-//
-// Therefore, the `/auth/login` endpoint can often be removed. The code below is kept for reference if you have a specific need for it.
-
+// Client-side login handler
 exports.login = async (req, res) => {
-    return res.status(200).json({ 
-        message: "Login is handled client-side with Firebase SDK. Use the obtained ID token to access protected routes like /auth/me." 
-    });
+  res.status(200).json({
+    message: "Please use Firebase client SDK for authentication."
+  });
 };
 
-
-// 3. GET USER PROFILE CONTROLLER (Protected Route)
-// This is the correct way to get user data after the client has logged in.
+// Get current user profile
 exports.getMe = async (req, res) => {
-  const uid = req.user.uid; // from auth middleware
-
   try {
-    // Fetch user profile from Firestore
-    const userDoc = await firestoreDb.collection('userProfiles').doc(uid).get();
-
+    const userDoc = await firestoreDb.collection('userProfiles').doc(req.user.uid).get();
     if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User profile not found.' });
+      return res.status(404).json({ message: 'User not found' });
     }
-
-    const userProfile = userDoc.data();
-
-    res.status(200).json(userProfile);
-
+    res.status(200).json(userDoc.data());
   } catch (error) {
-    console.error('Error fetching user profile (/auth/me):', error);
-    res.status(500).json({ message: 'Failed to fetch user profile.', error: error.message });
+    console.error('Profile fetch error:', error);
+    res.status(500).json({ message: 'Failed to fetch profile', error: error.message });
   }
 };
 
-
-// 4. LOGOUT CONTROLLER
-// Logout is primarily a client-side action (deleting the stored ID token).
-// This backend endpoint provides a "hard logout" by revoking all refresh tokens,
-// forcing the user to log in again on all devices.
+// Logout endpoint
 exports.logout = async (req, res) => {
-  // authMiddleware should protect this route to get the user's UID
-  const uid = req.user.uid;
-
   try {
-    await admin.auth().revokeRefreshTokens(uid);
-    res.status(200).json({ message: 'User refresh tokens have been revoked. Client should clear local token and log out.' });
+    // Revoke all sessions (optional - only needed if you want to force client logout)
+    await admin.auth().revokeRefreshTokens(req.user.uid);
+    res.status(200).json({ message: 'All sessions terminated. Client should clear local credentials.' });
   } catch (error) {
-    console.error('Error revoking refresh tokens:', error);
-    res.status(500).json({ message: 'Failed to revoke refresh tokens.' });
+    console.error('Logout error:', error);
+    res.status(500).json({ message: 'Logout failed', error: error.message });
   }
 };

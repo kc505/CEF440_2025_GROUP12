@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smartcheck/models/student.dart';
 
 enum UserRole { student, lecturer, admin }
@@ -18,45 +19,25 @@ class AuthProvider with ChangeNotifier {
   String? get token => _token;
   Student? get currentUser => _currentUser;
 
-  final String baseUrl = "http://YOUR_LOCAL_IP:5000/api"; // 👈 UPDATE this to your backend URL
+  final String baseUrl = "http://localhost:5000/api"; // Update to production URL when needed
 
   // ===================== SIGNUP =====================
-  Future<bool> signup(String name, String email, String password, String role) async {
+  Future<bool> signup(String firstName, String lastName, String email, String password, String role, String? department) async {
     try {
-      final url = Uri.parse('$baseUrl/face/register');
-
-      // Here, send face data with signup (if you want to include face capture)
-      // This example only shows sending without face data yet
       final response = await http.post(
-        url,
+        Uri.parse('$baseUrl/auth/signup'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'name': name,
           'email': email,
           'password': password,
+          'firstName': firstName,
+          'lastName': lastName,
           'role': role,
-          // 'imageBase64': yourCapturedImageBase64, 👈 TODO: Add face data here during signup flow
+          'department': department,
         }),
       );
 
-      if (response.statusCode == 200) {
-        _isAuthenticated = true;
-        _token = 'sample_token';
-        _userData = {'name': name, 'email': email, 'role': role};
-
-        switch (role) {
-          case 'student':
-            _userRole = UserRole.student;
-            break;
-          case 'lecturer':
-            _userRole = UserRole.lecturer;
-            break;
-          case 'admin':
-            _userRole = UserRole.admin;
-            break;
-        }
-
-        notifyListeners();
+      if (response.statusCode == 201) {
         return true;
       } else {
         print('Signup failed: ${response.body}');
@@ -65,6 +46,124 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       print('Signup error: $e');
       return false;
+    }
+  }
+
+  // ===================== LOGIN (Firebase Authentication) =====================
+  Future<bool> loginWithFirebase(String email, String password, String role) async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final firebaseUser = credential.user;
+      if (firebaseUser == null) {
+        throw Exception('User not found after login');
+      }
+
+      final idToken = await firebaseUser.getIdToken();
+
+      _token = idToken;
+      _isAuthenticated = true;
+
+      _userData = {
+        'uid': firebaseUser.uid,
+        'email': firebaseUser.email,
+        'displayName': firebaseUser.displayName,
+        'emailVerified': firebaseUser.emailVerified,
+        'phoneNumber': firebaseUser.phoneNumber,
+        'photoURL': firebaseUser.photoURL,
+      };
+
+      // Set role
+      switch (role.toLowerCase()) {
+        case 'student':
+          _userRole = UserRole.student;
+          break;
+        case 'lecturer':
+          _userRole = UserRole.lecturer;
+          break;
+        case 'admin':
+          _userRole = UserRole.admin;
+          break;
+        default:
+          _userRole = UserRole.student;
+      }
+
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      print('Firebase Login error: ${e.code} → ${e.message}');
+      return false;
+    } catch (e) {
+      print('Unexpected login error: $e');
+      return false;
+    }
+  }
+
+  // ===================== SPECIAL ADMIN LOGIN =====================
+  void setAdminAuthenticated() {
+    _isAuthenticated = true;
+    _userRole = UserRole.admin;
+    _userData = {
+      'email': 'admin@smartcheck.com',
+      'displayName': 'Admin User',
+      'role': 'admin',
+    };
+    notifyListeners();
+  }
+
+  // ===================== FETCH USER PROFILE (/auth/me) =====================
+  Future<bool> _fetchUserProfile(String idToken) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/me'),
+        headers: {
+          'Authorization': 'Bearer $idToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _userData = data;
+
+        // Optionally populate _currentUser model from data
+        _currentUser = Student.fromJson(data);
+
+        return true;
+      } else {
+        print('Failed to fetch user profile: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      return false;
+    }
+  }
+
+  // ===================== LOGOUT =====================
+  Future<void> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (_token != null) {
+        await http.post(
+          Uri.parse('$baseUrl/auth/logout'),
+          headers: {
+            'Authorization': 'Bearer $_token',
+          },
+        );
+      }
+
+      _isAuthenticated = false;
+      _token = null;
+      _userData = null;
+      _userRole = null;
+      _currentUser = null;
+      notifyListeners();
+    } catch (e) {
+      print('Logout error: $e');
     }
   }
 
@@ -88,106 +187,20 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // ===================== LOGIN MOCKUP (to replace with real API) =====================
-  Future<bool> loginStudent(String matricule, String email, String password) async {
-    try {
-      // Replace with API → Simulating delay for now
-      await Future.delayed(const Duration(seconds: 2));
-
-      _isAuthenticated = true;
-      _userRole = UserRole.student;
-      _token = 'student_token_${DateTime.now().millisecondsSinceEpoch}';
-      _currentUser = Student(
-        id: 'STU001',
-        username: 'ash',
-        password: password,
-        firstName: 'Mekole',
-        lastName: 'Ashley',
-        email: email,
-        role: 'Student',
-        phoneNumber: '677030466',
-        registrationDate: DateTime.now(),
-        profileImageURL: null,
-        matriculeNumber: matricule,
-        department: 'Computer Engineering',
-        program: 'BEng Computer Engineering',
-        admissionYear: 2023,
-        enrolledCourses: ['CE101', 'MAT101', 'PHY101'],
-        academicStatus: 'Active',
-        gpa: 3.75,
-        totalCredits: 45,
-      );
-
-      _userData = {
-        'matricule': matricule,
-        'email': email,
-        'name': _currentUser!.fullName,
-        'role': 'student',
-      };
-
-      notifyListeners();
-      return true;
-    } catch (e) {
-      print('Student login error: $e');
-      return false;
-    }
-  }
-
-  // Lecturer login → same idea as above, to replace with real API call
-  Future<bool> loginLecturer(String facultyNumber, String email, String password) async {
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-      _isAuthenticated = true;
-      _userRole = UserRole.lecturer;
-      _token = 'lecturer_token_${DateTime.now().millisecondsSinceEpoch}';
-      _userData = {'facultyNumber': facultyNumber, 'email': email, 'name': 'Dr. Jane Smith', 'role': 'lecturer'};
-      notifyListeners();
-      return true;
-    } catch (e) {
-      print('Lecturer login error: $e');
-      return false;
-    }
-  }
-
-  // Admin login → mockup
-  Future<bool> loginAdmin(String email, String password) async {
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-      _isAuthenticated = true;
-      _userRole = UserRole.admin;
-      _token = 'admin_token_${DateTime.now().millisecondsSinceEpoch}';
-      _userData = {'email': email, 'name': 'System Administrator', 'role': 'admin'};
-      notifyListeners();
-      return true;
-    } catch (e) {
-      print('Admin login error: $e');
-      return false;
-    }
-  }
-
-  // ===================== UPDATE & LOGOUT =====================
+  // ===================== UPDATE CURRENT USER (For UI updates) =====================
   void updateCurrentUser(Student updatedUser) {
     _currentUser = updatedUser;
     _userData = {
-      'matricule': updatedUser.matriculeNumber,
+      'id': updatedUser.id,
+      'matriculeNumber': updatedUser.matriculeNumber,
       'email': updatedUser.email,
-      'name': updatedUser.fullName,
-      'role': updatedUser.role.toLowerCase(),
       'firstName': updatedUser.firstName,
       'lastName': updatedUser.lastName,
-      'username': updatedUser.username,
+      'role': updatedUser.role,
       'department': updatedUser.department,
       'program': updatedUser.program,
+      'createdAt': updatedUser.createdAt?.toIso8601String(),
     };
-    notifyListeners();
-  }
-
-  void logout() {
-    _isAuthenticated = false;
-    _token = null;
-    _userData = null;
-    _userRole = null;
-    _currentUser = null;
     notifyListeners();
   }
 }

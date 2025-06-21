@@ -22,4 +22,4 @@ async function loginAndGetToken(email, password) {
 }
 
 // 👉 Enter your Firebase email + password here (of a real Firebase Auth user!)
-loginAndGetToken("student@example1.com", "securePass123");
+loginAndGetToken("janedoe@gmail.com", "janedoe123");

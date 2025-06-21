@@ -1,8 +1,8 @@
-// 1. Updated SignupScreen (Step 1)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartcheck/providers/auth_provider.dart';
 import 'package:smartcheck/screens/auth/SignupFaceCaptureScreen.dart';
+import 'package:smartcheck/screens/auth/login_screen.dart';
 import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/widgets/custom_button.dart';
 import 'package:smartcheck/widgets/custom_text_field.dart';
@@ -21,7 +21,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
-  String _selectedRole = 'student';
 
   @override
   void dispose() {
@@ -31,14 +30,13 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  Future<void> _proceedToFaceCapture() async {
+  Future<void> _proceed() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        // Check if email already exists (optional validation)
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final emailExists = await authProvider.checkEmailExists(_emailController.text.trim());
 
@@ -52,15 +50,14 @@ class _SignupScreenState extends State<SignupScreen> {
           return;
         }
 
-        // Navigate to face capture screen
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => SignupFaceCaptureScreen(
               name: _nameController.text.trim(),
               email: _emailController.text.trim(),
-              password: _passwordController.text,
-              role: _selectedRole,
+              password: _passwordController.text.trim(),
+              role: 'student', // 🔑 Fixed to 'student'
             ),
           ),
         );
@@ -85,7 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Account'),
+        title: const Text('Student Signup'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -101,7 +98,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  // Header
                   Center(
                     child: Column(
                       children: [
@@ -111,7 +107,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Create an account',
+                          'Student Registration',
                           style: Theme.of(context).textTheme.displayMedium,
                         ),
                         const SizedBox(height: 8),
@@ -124,60 +120,25 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  // Role selection
-                  const Text(
-                    'Select Role',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.dividerColor),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildRoleOption('student', 'Student'),
-                        ),
-                        Expanded(
-                          child: _buildRoleOption('lecturer', 'Lecturer'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Name field
                   CustomTextField(
-                    label: 'Name',
+                    label: 'Full Name',
                     controller: _nameController,
                     prefixIcon: const Icon(Icons.person_outline),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      if (value.length < 2) {
-                        return 'Name must be at least 2 characters';
-                      }
+                      if (value == null || value.isEmpty) return 'Please enter your name';
+                      if (value.length < 2) return 'Name must be at least 2 characters';
                       return null;
                     },
                   ),
                   const SizedBox(height: 20),
 
-                  // Email field
                   CustomTextField(
                     label: 'Email',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: const Icon(Icons.email_outlined),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
+                      if (value == null || value.isEmpty) return 'Please enter your email';
                       if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
@@ -186,35 +147,23 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Password field with toggle visibility
                   CustomTextField(
                     label: 'Password',
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
+                      if (value == null || value.isEmpty) return 'Please enter your password';
+                      if (value.length < 6) return 'Password must be at least 6 characters';
                       return null;
                     },
                   ),
                   const SizedBox(height: 20),
 
-                  // Info about face capture
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -224,11 +173,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.face,
-                          color: AppTheme.primaryColor,
-                          size: 20,
-                        ),
+                        Icon(Icons.face, color: AppTheme.primaryColor, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -244,15 +189,13 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  // Continue button
                   CustomButton(
                     text: 'Continue to Face Capture',
-                    onPressed: _proceedToFaceCapture,
+                    onPressed: _proceed,
                     isLoading: _isLoading,
                   ),
                   const SizedBox(height: 20),
 
-                  // Login link
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -270,36 +213,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 ],
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoleOption(String role, String label) {
-    final isSelected = _selectedRole == role;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedRole = role;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor : Colors.transparent,
-          borderRadius: BorderRadius.horizontal(
-            left: role == 'student' ? const Radius.circular(8) : Radius.zero,
-            right: role == 'lecturer' ? const Radius.circular(8) : Radius.zero,
-          ),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),

@@ -87,7 +87,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
       });
 
       // Replace with your actual API endpoint
-      const String apiUrl = "http://YOUR_LOCAL_IP:5000/api/face/register";
+      const String apiUrl = "http://localhost:5000/api/face/register";
 
       final response = await http.post(
         Uri.parse(apiUrl),

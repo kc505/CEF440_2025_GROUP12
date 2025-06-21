@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "396835980531",
+    "project_id": "smartcheck-51999",
+    "storage_bucket": "smartcheck-51999.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396835980531:android:473917e2e4c97a27ebe386",
+        "android_client_info": {
+          "package_name": "com.example.smartcheck"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "396835980531-jt83sbfb0osqn4fdh66ajommbpjdqamh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj_42gu9A5P3LAAEptsR3lT6hyBDZlukM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "396835980531-jt83sbfb0osqn4fdh66ajommbpjdqamh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396835980531:android:89b3ef2e861581c4ebe386",
+        "android_client_info": {
+          "package_name": "com.smartcheck"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "396835980531-jt83sbfb0osqn4fdh66ajommbpjdqamh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj_42gu9A5P3LAAEptsR3lT6hyBDZlukM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "396835980531-jt83sbfb0osqn4fdh66ajommbpjdqamh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
