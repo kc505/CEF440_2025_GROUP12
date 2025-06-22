@@ -1,6 +1,9 @@
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../utils/app_theme.dart';
 import '../../models/student.dart';
+
 
 class ManageStudentsScreen extends StatefulWidget {
   const ManageStudentsScreen({Key? key}) : super(key: key);
@@ -43,120 +46,43 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
 
   Future<void> _loadStudents() async {
     setState(() => _isLoading = true);
-    
+
     try {
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Mock data using the new student structure
-      _students = [
-        Student(
-          id: '1',
-          username: 'mekole.ash',
-          password: 'password123',
-          firstName: 'Mekole',
-          lastName: 'Ashley',
-          email: 'mekoleash@gmail.com',
-          role: 'Student',
-          phoneNumber: '677030466',
-          registrationDate: DateTime(2023, 9, 1),
-          profileImageURL: null,
-          matriculeNumber: 'CE/2023/001',
-          department: 'Computer Engineering',
-          program: 'BEng Computer Engineering',
-          admissionYear: 2023,
-          enrolledCourses: ['CE101', 'CE102', 'MAT101'],
-          academicStatus: 'Active',
-          gpa: 3.8,
-          totalCredits: 45,
-        ),
-        Student(
-          id: '2',
-          username: 'john.doe',
-          password: 'password123',
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john.doe@gmail.com',
-          role: 'Student',
-          phoneNumber: '677030467',
-          registrationDate: DateTime(2022, 9, 1),
-          profileImageURL: null,
-          matriculeNumber: 'EE/2022/015',
-          department: 'Electrical Engineering',
-          program: 'BEng Electrical Engineering',
-          admissionYear: 2022,
-          enrolledCourses: ['EE201', 'EE202', 'MAT201'],
-          academicStatus: 'Active',
-          gpa: 3.2,
-          totalCredits: 90,
-        ),
-        Student(
-          id: '3',
-          username: 'jane.smith',
-          password: 'password123',
-          firstName: 'Jane',
-          lastName: 'Smith',
-          email: 'jane.smith@gmail.com',
-          role: 'Student',
-          phoneNumber: '677030468',
-          registrationDate: DateTime(2021, 9, 1),
-          profileImageURL: null,
-          matriculeNumber: 'ME/2021/008',
-          department: 'Mechanical Engineering',
-          program: 'BEng Mechanical Engineering',
-          admissionYear: 2021,
-          enrolledCourses: ['ME301', 'ME302', 'MAT301'],
-          academicStatus: 'Active',
-          gpa: 3.9,
-          totalCredits: 135,
-        ),
-        Student(
-          id: '4',
-          username: 'mike.wilson',
-          password: 'password123',
-          firstName: 'Mike',
-          lastName: 'Wilson',
-          email: 'mike.wilson@gmail.com',
-          role: 'Student',
-          phoneNumber: '677030469',
-          registrationDate: DateTime(2020, 9, 1),
-          profileImageURL: null,
-          matriculeNumber: 'CE/2020/012',
-          department: 'Computer Engineering',
-          program: 'BEng Computer Engineering',
-          admissionYear: 2020,
-          enrolledCourses: ['CE401', 'CE402'],
-          academicStatus: 'Graduated',
-          gpa: 3.5,
-          totalCredits: 180,
-        ),
-        Student(
-          id: '5',
-          username: 'sarah.brown',
-          password: 'password123',
-          firstName: 'Sarah',
-          lastName: 'Brown',
-          email: 'sarah.brown@gmail.com',
-          role: 'Student',
-          phoneNumber: '677030470',
-          registrationDate: DateTime(2023, 9, 1),
-          profileImageURL: null,
-          matriculeNumber: 'SE/2023/005',
-          department: 'Software Engineering',
-          program: 'BEng Software Engineering',
-          admissionYear: 2023,
-          enrolledCourses: ['SE101', 'SE102', 'MAT101'],
-          academicStatus: 'Active',
-          gpa: 3.7,
-          totalCredits: 42,
-        ),
-      ];
-      
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'student')
+          .get();
+
+      _students = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Student(
+          id: doc.id,
+          username: data['username'] ?? '',
+          password: '', // avoid storing passwords client-side
+          firstName: data['firstName'] ?? '',
+          lastName: data['lastName'] ?? '',
+          email: data['email'] ?? '',
+          role: data['role'] ?? '',
+          phoneNumber: data['phoneNumber'] ?? '',
+          registrationDate: (data['registrationDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          profileImageURL: data['profileImageURL'],
+          matriculeNumber: data['matriculeNumber'] ?? '',
+          department: data['department'] ?? '',
+          program: data['program'] ?? '',
+          admissionYear: data['admissionYear'] ?? 0,
+          enrolledCourses: List<String>.from(data['enrolledCourses'] ?? []),
+          academicStatus: data['academicStatus'] ?? '',
+          gpa: (data['gpa'] is num) ? (data['gpa'] as num).toDouble() : null,
+          totalCredits: data['totalCredits'] ?? 0,
+        );
+      }).toList();
+
       _applyFilters();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading students: ${e.toString()}'),
+            content: Text('Error loading students: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -175,16 +101,16 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
           student.matriculeNumber.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           student.email.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           student.username.toLowerCase().contains(_searchQuery.toLowerCase());
-      
+
       bool matchesDepartment = _selectedDepartment == 'All' ||
           student.department == _selectedDepartment;
-      
+
       bool matchesStatus = _selectedStatus == 'All' ||
           student.academicStatus == _selectedStatus;
-      
+
       bool matchesYear = _selectedYear == 0 ||
           student.currentYear == _selectedYear;
-      
+
       return matchesSearch && matchesDepartment && matchesStatus && matchesYear;
     }).toList();
   }
@@ -240,7 +166,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Filter Dropdowns
                 Row(
                   children: [
@@ -327,7 +253,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
               ],
             ),
           ),
-          
+
           // Statistics Header
           Container(
             padding: const EdgeInsets.all(16),
@@ -342,40 +268,40 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
               ],
             ),
           ),
-          
+
           // Students List
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredStudents.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No students found',
-                              style: AppTheme.bodyStyle.copyWith(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _filteredStudents.length,
-                        itemBuilder: (context, index) {
-                          final student = _filteredStudents[index];
-                          return _buildStudentCard(student);
-                        },
-                      ),
+                ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.search_off,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No students found',
+                    style: AppTheme.bodyStyle.copyWith(
+                      color: Colors.grey[600],
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            )
+                : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _filteredStudents.length,
+              itemBuilder: (context, index) {
+                final student = _filteredStudents[index];
+                return _buildStudentCard(student);
+              },
+            ),
           ),
         ],
       ),
@@ -421,17 +347,17 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
               children: [
                 CircleAvatar(
                   backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                  backgroundImage: student.profileImageURL != null 
-                      ? NetworkImage(student.profileImageURL!) 
+                  backgroundImage: student.profileImageURL != null
+                      ? NetworkImage(student.profileImageURL!)
                       : null,
                   child: student.profileImageURL == null
                       ? Text(
-                          student.initials,
-                          style: TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
+                    student.initials,
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
                       : null,
                 ),
                 const SizedBox(width: 12),
@@ -484,7 +410,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Student Details
             Container(
               padding: const EdgeInsets.all(12),
@@ -554,7 +480,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -745,7 +671,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
       _students.removeWhere((s) => s.id == student.id);
       _applyFilters();
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${student.fullName} has been deleted'),
@@ -764,3 +690,4 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
     );
   }
 }
+

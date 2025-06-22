@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // <-- import the generated config
+import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:smartcheck/providers/auth_provider.dart';
 import 'package:smartcheck/providers/theme_provider.dart';
 import 'package:smartcheck/screens/splash/splash_screen.dart';
 import 'package:smartcheck/utils/app_theme.dart';
 import 'package:smartcheck/services/camera_service.dart';
+import 'package:smartcheck/providers/course_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => CourseProvider()),
       ],
       child: const MyApp(),
     ),

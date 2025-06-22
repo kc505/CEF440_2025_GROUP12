@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
@@ -13,12 +12,24 @@ class SignupFaceCaptureScreen extends StatefulWidget {
   final String password;
   final String role;
 
+  // Additional user info needed for signup
+  final String username;
+  final String phoneNumber;
+  final String matriculeNumber;
+  final String department;
+  final String specialization;
+
   const SignupFaceCaptureScreen({
     super.key,
     required this.name,
     required this.email,
     required this.password,
     required this.role,
+    required this.username,
+    required this.phoneNumber,
+    required this.matriculeNumber,
+    required this.department,
+    required this.specialization,
   });
 
   @override
@@ -31,6 +42,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
   bool _isCameraInitialized = false;
   bool _isProcessing = false;
   String _statusMessage = 'Position your face clearly in the circle';
+
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -80,45 +92,69 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
       if (picture == null) throw Exception('Could not capture photo');
 
       final bytes = await picture.readAsBytes();
-      final base64Image = base64Encode(bytes);
+      final base64ImageData = base64Encode(bytes);
+
+      // Add data URI prefix so backend knows the image type
+      final base64Image = 'data:image/jpeg;base64,$base64ImageData';
 
       setState(() {
-        _statusMessage = 'Registering your account...';
+        _statusMessage = 'Registering your face data...';
       });
 
-      // Replace with your actual API endpoint
-      const String apiUrl = "http://localhost:5000/api/face/register";
+      // Use email as studentId or change to your user id logic
+      final studentId = widget.email; // or any unique id you want to use
 
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const String faceApiUrl = "http://localhost:5000/api/face/register";
+      final faceResponse = await http.post(
+        Uri.parse(faceApiUrl),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "name": widget.name,
-          "email": widget.email,
-          "password": widget.password,
-          "role": widget.role,
+          "studentId": studentId,
           "imageBase64": base64Image,
+          // optionally "isActive": "true",
         }),
       ).timeout(const Duration(seconds: 30));
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
+      if (faceResponse.statusCode == 200 || faceResponse.statusCode == 201) {
+        setState(() {
+          _statusMessage = 'Face data registered! Completing signup...';
+        });
 
-        // Navigate to success screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SignupSuccessScreen(
-              userName: widget.name,
-              userRole: widget.role,
+        // Proceed with your signup API call as is
+        const String signupApiUrl = "http://localhost:5000/api/auth/signup";
+        final signupResponse = await http.post(
+          Uri.parse(signupApiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            "name": widget.name,
+            "email": widget.email,
+            "password": widget.password,
+            "role": widget.role,
+            "username": widget.username,
+            "phoneNumber": widget.phoneNumber,
+            "matriculeNumber": widget.matriculeNumber,
+            "department": widget.department,
+            "specialization": widget.specialization,
+          }),
+        ).timeout(const Duration(seconds: 30));
+
+        if (signupResponse.statusCode == 200 || signupResponse.statusCode == 201) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SignupSuccessScreen(
+                userName: widget.name,
+                userRole: widget.role,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          final errorData = jsonDecode(signupResponse.body);
+          _showError(errorData['message'] ?? 'Signup failed after face registration');
+        }
       } else {
-        final errorData = jsonDecode(response.body);
-        _showError(errorData['message'] ?? 'Registration failed');
+        final errorData = jsonDecode(faceResponse.body);
+        _showError(errorData['error'] ?? 'Face registration failed');
       }
     } catch (e) {
       _showError("Registration failed: ${e.toString()}");
@@ -140,13 +176,6 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
         duration: const Duration(seconds: 4),
       ),
     );
-  }
-
-  void _retryCapture() {
-    setState(() {
-      _isProcessing = false;
-      _statusMessage = 'Position your face clearly in the circle';
-    });
   }
 
   @override
@@ -172,7 +201,6 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Status header
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -203,17 +231,13 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
               ),
             ),
 
-            // Camera view
             Expanded(
               child: _isCameraInitialized && _cameraController != null
                   ? Stack(
                 children: [
-                  // Camera preview
                   SizedBox.expand(
                     child: CameraPreview(_cameraController!),
                   ),
-
-                  // Overlay with face guide
                   Center(
                     child: AnimatedBuilder(
                       animation: _pulseAnimation,
@@ -238,8 +262,6 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
                       },
                     ),
                   ),
-
-                  // Processing overlay
                   if (_isProcessing)
                     Container(
                       color: Colors.black54,
@@ -272,13 +294,11 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
               ),
             ),
 
-            // Bottom controls
             Container(
               padding: const EdgeInsets.all(24),
               color: Colors.black,
               child: Column(
                 children: [
-                  // Capture button
                   SizedBox(
                     width: double.infinity,
                     height: 56,
@@ -310,10 +330,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
-                  // Help text
                   Text(
                     'Hold still and tap capture when your face is centered',
                     style: TextStyle(

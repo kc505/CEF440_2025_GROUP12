@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-
 import '../../models/course.dart';
 import '../../services/api_service.dart';
 import '../../utils/app_theme.dart';
@@ -30,42 +28,48 @@ class _ManageLecturersScreenState extends State<ManageLecturersScreen> {
       await _loadCourses();
       await _loadLecturers();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading data: $e'), backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading data: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _loadCourses() async {
-    // Replace this with actual API call to your courses endpoint
-    _courses.clear();
-    _courses.addAll([
-      Course(
-        id: '1',
-        code: 'CSC101',
-        name: 'Intro to CS',
-        title: 'Intro to Computer Science',
-        description: '',
-        credits: 3,
-        status: 'Active',
-        lecturerId: '',
-        lecturerName: '',
-        department: 'CS',
-        totalStudents: 0,
-        completedSessions: 0,
-        totalSessions: 0,
-        createdAt: DateTime.now(),
-      ),
-    ]);
+    final courses = await ApiService.getCourses();
+    setState(() {
+      _courses.clear();
+      _courses.addAll(courses);
+    });
   }
 
   Future<void> _loadLecturers() async {
     final lecturers = await ApiService.getUsersByRole('lecturer');
+
+    final lecturersWithCourses = lecturers.map((lecturer) {
+      Course? assignedCourse;
+      try {
+        assignedCourse = _courses.firstWhere(
+              (course) =>
+          course.lecturerId == lecturer['userID'] ||
+              course.lecturerId == lecturer['id'],
+        );
+      } catch (e) {
+        assignedCourse = null;
+      }
+
+      return {
+        ...lecturer,
+        'assignedCourse': assignedCourse,
+      };
+    }).toList();
+
     setState(() {
       _lecturers.clear();
-      _lecturers.addAll(lecturers);
+      _lecturers.addAll(lecturersWithCourses);
     });
   }
 
@@ -87,7 +91,10 @@ class _ManageLecturersScreenState extends State<ManageLecturersScreen> {
                 const SizedBox(height: 10),
                 CustomTextField(label: 'Email', controller: _emailController),
                 const SizedBox(height: 10),
-                CustomTextField(label: 'Password', controller: _passwordController, obscureText: true),
+                CustomTextField(
+                    label: 'Password',
+                    controller: _passwordController,
+                    obscureText: true),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Assign to Course'),
@@ -95,7 +102,7 @@ class _ManageLecturersScreenState extends State<ManageLecturersScreen> {
                   items: _courses.map((course) {
                     return DropdownMenuItem<String>(
                       value: course.id,
-                      child: Text('${course.code} - ${course.title}'),
+                      child: Text('${course.code} - ${course.name}'),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -106,7 +113,10 @@ class _ManageLecturersScreenState extends State<ManageLecturersScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
             ElevatedButton(
               onPressed: () async {
                 final name = _nameController.text.trim();
@@ -115,34 +125,41 @@ class _ManageLecturersScreenState extends State<ManageLecturersScreen> {
 
                 if (name.isEmpty || email.isEmpty || password.isEmpty || selectedCourseId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please fill all fields'), backgroundColor: Colors.red),
+                    const SnackBar(
+                      content: Text('Please fill all fields'),
+                      backgroundColor: Colors.red,
+                    ),
                   );
                   return;
                 }
 
-                setState(() => _isLoading = true);
+                if (mounted) setState(() => _isLoading = true);
 
                 try {
                   final nameParts = name.split(' ');
                   final firstName = nameParts.first;
                   final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
-                  await ApiService.createLecturer({
+                  final createdLecturer = await ApiService.createLecturer({
                     "firstName": firstName,
                     "lastName": lastName,
                     "email": email,
                     "password": password,
                     "role": "lecturer",
-                    "department": null, // Add department if needed
+                    "department": null,
                   });
 
-                  // ⚠️ Add additional API call here to assign course to lecturer in Firestore if you have that API
+                  final lecturerId = createdLecturer['userID'] ?? createdLecturer['id'] ?? '';
+                  if (lecturerId.isEmpty) throw Exception('Lecturer ID missing from response');
 
+                  await ApiService.assignLecturer(selectedCourseId!, lecturerId);
                   await _loadLecturers();
 
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lecturer "$name" created successfully!'), backgroundColor: Colors.green),
+                      SnackBar(
+                          content: Text('Lecturer "$name" created & assigned successfully!'),
+                          backgroundColor: Colors.green),
                     );
                   }
                 } catch (e) {
@@ -150,7 +167,7 @@ class _ManageLecturersScreenState extends State<ManageLecturersScreen> {
                     SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
                   );
                 } finally {
-                  setState(() => _isLoading = false);
+                  if (mounted) setState(() => _isLoading = false);
                   Navigator.pop(context);
                 }
               },
@@ -189,7 +206,9 @@ class _ManageLecturersScreenState extends State<ManageLecturersScreen> {
                   children: [
                     Text(lecturer['email'] ?? ''),
                     Text('Role: ${lecturer['role']}'),
-                    // Add course display here when linked
+                    if (lecturer['assignedCourse'] != null)
+                      Text(
+                          'Course: ${lecturer['assignedCourse'].code} - ${lecturer['assignedCourse'].name}'),
                   ],
                 ),
               ),

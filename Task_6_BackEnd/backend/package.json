@@ -27,13 +27,15 @@
   },
   "homepage": "https://github.com/kc505/CEF440_2025_GROUP12#readme",
   "dependencies": {
+    "@tensorflow/tfjs": "^3.18.0",
     "axios": "^1.9.0",
-    "canvas": "^3.1.1",
+    "canvas": "^2.11.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "face-api.js": "^0.22.2",
     "firebase-admin": "^13.4.0",
+    "multer": "^2.0.1",
     "pg": "^8.16.0"
   },
   "devDependencies": {

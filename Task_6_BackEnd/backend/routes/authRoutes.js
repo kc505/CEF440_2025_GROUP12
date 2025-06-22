@@ -16,10 +16,10 @@ router.post('/signup', authController.signup);
 // GET /auth/me
 // This is the primary route for a client to get their own profile after logging in.
 // The authMiddleware will verify the token from the Authorization header.
-router.get('/me', authMiddleware, authController.getMe);
+router.get('/me',  authController.getMe);
 
 // POST /auth/logout
 // The client signals a logout, and the backend revokes refresh tokens for a hard logout.
-router.post('/logout', authMiddleware, authController.logout);
+router.post('/logout',  authController.logout);
 
 module.exports = router;

@@ -1,20 +1,12 @@
-const express = require('express');
+const express = require("express");
+const multer = require("multer");
+const { registerFace, verifyFace } = require("../controllers/faceController");
+
 const router = express.Router();
-const { verifyFace } = require('../services/face.service.js');
 
-router.post('/verify', async (req, res) => {
-  const { imageBase64, storedEmbedding } = req.body;
+const upload = multer({ storage: multer.memoryStorage() });
 
-  if (!imageBase64 || !storedEmbedding) {
-    return res.status(400).json({ error: 'Missing parameters' });
-  }
-
-  try {
-    const result = await verifyFace(imageBase64, storedEmbedding);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: 'Error verifying face', details: err.message });
-  }
-});
+router.post("/register", upload.single("image"), registerFace);
+router.post("/verify", upload.single("image"), verifyFace);
 
 module.exports = router;

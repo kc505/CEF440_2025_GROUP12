@@ -186,7 +186,7 @@ class _CourseStudentsScreenState extends State<CourseStudentsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.course.title,
+            widget.course.title ?? 'Untitled',
                   style: AppTheme.headingStyle.copyWith(
                     color: AppTheme.primaryColor,
                     fontSize: 18,

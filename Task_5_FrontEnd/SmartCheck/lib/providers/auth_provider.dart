@@ -22,7 +22,19 @@ class AuthProvider with ChangeNotifier {
   final String baseUrl = "http://localhost:5000/api"; // Update to production URL when needed
 
   // ===================== SIGNUP =====================
-  Future<bool> signup(String firstName, String lastName, String email, String password, String role, String? department) async {
+  Future<bool> signup({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String role,
+    required String department,
+    required String userID,
+    required String username,
+    String? phoneNumber,
+    String? matriculeNumber,
+    String? specialization,
+  }) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/signup'),
@@ -34,20 +46,21 @@ class AuthProvider with ChangeNotifier {
           'lastName': lastName,
           'role': role,
           'department': department,
+          'userID': userID,
+          'username': username,
+          'phoneNumber': phoneNumber ?? '',
+          'matriculeNumber': matriculeNumber ?? '',
+          'specialization': specialization ?? '',
         }),
       );
 
-      if (response.statusCode == 201) {
-        return true;
-      } else {
-        print('Signup failed: ${response.body}');
-        return false;
-      }
+      return response.statusCode == 201;
     } catch (e) {
       print('Signup error: $e');
       return false;
     }
   }
+
 
   // ===================== LOGIN (Firebase Authentication) =====================
   Future<bool> loginWithFirebase(String email, String password, String role) async {

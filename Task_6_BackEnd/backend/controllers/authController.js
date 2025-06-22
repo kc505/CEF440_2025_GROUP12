@@ -1,36 +1,68 @@
 const { admin, db: firestoreDb } = require('../config/firebaseAdmin');
 
 exports.signup = async (req, res) => {
-  const { email, password, firstName, lastName, role, department } = req.body;
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    role,
+    department,
+    admissionYear,
+    employeeNumber,
+    matriculeNumber,
+    officeLocation,
+    phoneNumber,
+    profileImageURL,
+    program,
+    registrationDate,
+    specialization,
+    userID,
+    username,
+  } = req.body;
 
-  if (!email || !password || !firstName || !lastName || !role) {
-    return res.status(400).json({ message: 'Missing required fields: email, password, firstName, lastName, role.' });
+  if (!email || !password || !firstName || !lastName || !role || !userID || !username) {
+    return res.status(400).json({
+      message: 'Missing required fields: email, password, firstName, lastName, role, userID, username.'
+    });
   }
 
   try {
-    // Create user in Firebase Auth
+    // 1. Create user in Firebase Auth
     const userRecord = await admin.auth().createUser({
       email,
       password,
       displayName: `${firstName} ${lastName}`,
     });
 
-    // Create user profile in Firestore
-    await firestoreDb.collection('userProfiles').doc(userRecord.uid).set({
-      uid: userRecord.uid,
+    // 2. Create user profile in Firestore (collection 'users')
+    await firestoreDb.collection('users').doc(userRecord.uid).set({
+      admissionYear: admissionYear || null,             // Number or null
+      department: department || '',
       email,
+      employeeNumber: employeeNumber || '',
       firstName,
       lastName,
+      matriculeNumber: matriculeNumber || '',
+      officeLocation: officeLocation || '',
+      phoneNumber: phoneNumber || '',
+      profileImageURL: profileImageURL || '',
+      program: program || '',
+      registrationDate: registrationDate
+        ? admin.firestore.Timestamp.fromDate(new Date(registrationDate))
+        : admin.firestore.FieldValue.serverTimestamp(),
       role: role.toLowerCase(),
-      department: department || null,
+      specialization: specialization || '',
+      userID,
+      username,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       isActive: true,
     });
 
     res.status(201).json({
-      message: 'User registered successfully. Please login using the client SDK.',
+      message: 'User registered successfully.',
       uid: userRecord.uid,
-      email: userRecord.email
+      email: userRecord.email,
     });
 
   } catch (error) {
@@ -44,6 +76,7 @@ exports.signup = async (req, res) => {
     res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 };
+
 
 // Client-side login handler
 exports.login = async (req, res) => {

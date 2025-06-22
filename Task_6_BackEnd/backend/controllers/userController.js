@@ -119,7 +119,63 @@ exports.createLecturer = async (req, res) => {
 
     await db.collection('users').doc(userID).set(users);
 
-    res.status(201).json({ message: 'Lecturer created successfully', data: users });
+    res.status(201).json({ message: 'Lecturer created successfully', userID, data: users });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getLecturerById = async (req, res) => {
+  const { uid } = req.params;
+  try {
+    const doc = await db.collection('users').doc(uid).get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ message: 'Lecturer not found.' });
+    }
+
+    const data = doc.data();
+
+    // Check if the role is lecturer
+    if (data.role !== 'lecturer') {
+      return res.status(400).json({ message: 'User is not a lecturer.' });
+    }
+
+    res.status(200).json({ id: doc.id, ...data });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAllLecturers = async (req, res) => {
+  try {
+    const snapshot = await db.collection('users').where('role', '==', 'lecturer').get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({ message: 'No lecturers found.' });
+    }
+
+    const lecturers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.status(200).json(lecturers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Assign Lecturer to Course
+exports.assignLecturer = async (req, res) => {
+  const { lecturerId } = req.body;
+  const { courseId } = req.params;
+
+  try {
+    await db.collection('courses').doc(courseId).update({ lecturerId });
+    const updatedDoc = await db.collection('courses').doc(courseId).get();
+
+    if (!updatedDoc.exists) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.status(200).json({ message: 'Lecturer assigned successfully', data: { id: updatedDoc.id, ...updatedDoc.data() } });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

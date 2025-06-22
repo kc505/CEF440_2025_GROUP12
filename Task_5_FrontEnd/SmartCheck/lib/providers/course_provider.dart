@@ -9,7 +9,7 @@ class CourseProvider with ChangeNotifier {
 
   Future<void> fetchCourses() async {
     final data = await ApiService.getCourses();
-    _courses = data.map((json) => Course.fromJson(json)).toList();
+    _courses = data;
     notifyListeners();
   }
 
