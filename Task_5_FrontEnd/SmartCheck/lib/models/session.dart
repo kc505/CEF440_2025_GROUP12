@@ -135,7 +135,7 @@ class Session {
       startTime: json['startTime'],
       endTime: json['endTime'],
       venue: json['venue'],
-      status: SessionStatus.values.firstWhere((e) => e.name == json['status']),
+      status: SessionStatus.values.firstWhere((e) => e.name == json['OPEN''CLOSED']),
       attendanceCount: json['attendanceCount'],
       totalStudents: json['totalStudents'],
       createdAt: DateTime.parse(json['createdAt']),
