@@ -21,6 +21,7 @@ class Student {
   // Additional fields for app functionality
   final List<String> enrolledCourses;
   final DateTime? updatedAt;
+  final DateTime? createdAt;
   final bool isActive;
   
   // Academic status fields
@@ -45,6 +46,7 @@ class Student {
     required this.admissionYear,
     this.enrolledCourses = const [],
     this.updatedAt,
+    this.createdAt,
     this.isActive = true,
     this.academicStatus = 'Active',
     this.gpa,
@@ -61,15 +63,15 @@ class Student {
   String get academicLevel {
     switch (currentYear) {
       case 1:
-        return 'Freshman';
+        return 'Year 1';
       case 2:
-        return 'Sophomore';
+        return 'Year 2';
       case 3:
-        return 'Junior';
+        return 'Year 3';
       case 4:
-        return 'Senior';
+        return 'Year 4';
       default:
-        return currentYear > 4 ? 'Graduate' : 'Freshman';
+        return currentYear > 4 ? 'Graduate' : 'Undergraduate';
     }
   }
 
@@ -97,6 +99,7 @@ class Student {
       admissionYear: json['admissionYear'] ?? DateTime.now().year,
       enrolledCourses: (json['enrolledCourses'] as List<dynamic>?)?.cast<String>() ?? [],
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
       isActive: json['isActive'] ?? true,
       academicStatus: json['academicStatus'] ?? 'Active',
       gpa: json['gpa']?.toDouble(),

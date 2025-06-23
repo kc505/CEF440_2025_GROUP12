@@ -326,7 +326,7 @@ class CourseCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        course.status,
+                        course.status ?? 'Unknown',
                         style: TextStyle(
                           fontSize: 12,
                           color: course.status == 'Active'

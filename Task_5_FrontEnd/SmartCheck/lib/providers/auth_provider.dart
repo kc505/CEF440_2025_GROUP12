@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smartcheck/models/student.dart';
 
 enum UserRole { student, lecturer, admin }
@@ -16,126 +19,78 @@ class AuthProvider with ChangeNotifier {
   String? get token => _token;
   Student? get currentUser => _currentUser;
 
-  // Student login with matricule number, email, and password
-  Future<bool> loginStudent(String matricule, String email, String password) async {
+  final String baseUrl = "http://localhost:5000/api"; // Update to production URL when needed
+
+  // ===================== SIGNUP =====================
+  Future<bool> signup({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String role,
+    required String department,
+    required String userID,
+    required String username,
+    String? phoneNumber,
+    String? matriculeNumber,
+    String? specialization,
+  }) async {
     try {
-      // TODO: Implement actual API call to backend for student login
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Mock successful login with proper Student model
-      _isAuthenticated = true;
-      _userRole = UserRole.student;
-      _token = 'student_token_${DateTime.now().millisecondsSinceEpoch}';
-      
-      // Create current user with the new Student model structure
-      _currentUser = Student(
-        id: 'STU001',
-        username: 'ash',
-        password: password, // In real app, this would be hashed
-        firstName: 'Mekole',
-        lastName: 'Ashley',
-        email: 'mekoleash@gmail.com',
-        role: 'Student',
-        phoneNumber: '677030466',
-        registrationDate: DateTime.now().subtract(const Duration(days: 365)),
-        profileImageURL: null,
-        matriculeNumber: matricule,
-        department: 'Computer Engineering',
-        program: 'BEng Computer Engineering',
-        admissionYear: 2023,
-        enrolledCourses: ['CE101', 'MAT101', 'PHY101'],
-        academicStatus: 'Active',
-        gpa: 3.75,
-        totalCredits: 45,
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/signup'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'firstName': firstName,
+          'lastName': lastName,
+          'role': role,
+          'department': department,
+          'userID': userID,
+          'username': username,
+          'phoneNumber': phoneNumber ?? '',
+          'matriculeNumber': matriculeNumber ?? '',
+          'specialization': specialization ?? '',
+        }),
       );
-      
-      _userData = {
-        'matricule': matricule,
-        'email': email,
-        'name': _currentUser!.fullName,
-        'role': 'student',
-        'firstName': _currentUser!.firstName,
-        'lastName': _currentUser!.lastName,
-        'username': _currentUser!.username,
-        'department': _currentUser!.department,
-        'program': _currentUser!.program,
-      };
-      
-      notifyListeners();
-      return true;
+
+      return response.statusCode == 201;
     } catch (e) {
-      print('Student login error: $e');
+      print('Signup error: $e');
       return false;
     }
   }
 
-  // Lecturer login with faculty number, email, and password
-  Future<bool> loginLecturer(String facultyNumber, String email, String password) async {
-    try {
-      // TODO: Implement actual API call to backend for lecturer login
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Mock successful login
-      _isAuthenticated = true;
-      _userRole = UserRole.lecturer;
-      _token = 'lecturer_token_${DateTime.now().millisecondsSinceEpoch}';
-      _userData = {
-        'facultyNumber': facultyNumber,
-        'email': email,
-        'name': 'Dr. Jane Smith', // This would come from API response
-        'role': 'lecturer',
-      };
-      
-      notifyListeners();
-      return true;
-    } catch (e) {
-      print('Lecturer login error: $e');
-      return false;
-    }
-  }
 
-  // Admin login with email and password only
-  Future<bool> loginAdmin(String email, String password) async {
+  // ===================== LOGIN (Firebase Authentication) =====================
+  Future<bool> loginWithFirebase(String email, String password, String role) async {
     try {
-      // TODO: Implement actual API call to backend for admin login
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Mock successful login
-      _isAuthenticated = true;
-      _userRole = UserRole.admin;
-      _token = 'admin_token_${DateTime.now().millisecondsSinceEpoch}';
-      _userData = {
-        'email': email,
-        'name': 'System Administrator', // This would come from API response
-        'role': 'admin',
-      };
-      
-      notifyListeners();
-      return true;
-    } catch (e) {
-      print('Admin login error: $e');
-      return false;
-    }
-  }
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-  // Signup method (existing)
-  Future<bool> signup(String name, String email, String password, String role) async {
-    try {
-      // TODO: Implement actual API call to backend with role parameter
-      // Simulating successful signup
+      final firebaseUser = credential.user;
+      if (firebaseUser == null) {
+        throw Exception('User not found after login');
+      }
+
+      final idToken = await firebaseUser.getIdToken();
+
+      _token = idToken;
       _isAuthenticated = true;
-      _token = 'sample_token';
+
       _userData = {
-        'name': name,
-        'email': email,
-        'role': role,
+        'uid': firebaseUser.uid,
+        'email': firebaseUser.email,
+        'displayName': firebaseUser.displayName,
+        'emailVerified': firebaseUser.emailVerified,
+        'phoneNumber': firebaseUser.phoneNumber,
+        'photoURL': firebaseUser.photoURL,
       };
-      
-      // Set user role based on signup role
-      switch (role) {
+
+      // Set role
+      switch (role.toLowerCase()) {
         case 'student':
           _userRole = UserRole.student;
           break;
@@ -145,41 +100,120 @@ class AuthProvider with ChangeNotifier {
         case 'admin':
           _userRole = UserRole.admin;
           break;
+        default:
+          _userRole = UserRole.student;
       }
-      
+
       notifyListeners();
       return true;
+    } on FirebaseAuthException catch (e) {
+      print('Firebase Login error: ${e.code} → ${e.message}');
+      return false;
     } catch (e) {
-      print('Signup error: $e');
+      print('Unexpected login error: $e');
       return false;
     }
   }
 
-  // Update current user
-  void updateCurrentUser(Student updatedUser) {
-    _currentUser = updatedUser;
+  // ===================== SPECIAL ADMIN LOGIN =====================
+  void setAdminAuthenticated() {
+    _isAuthenticated = true;
+    _userRole = UserRole.admin;
     _userData = {
-      'matricule': updatedUser.matriculeNumber,
-      'email': updatedUser.email,
-      'name': updatedUser.fullName,
-      'role': updatedUser.role.toLowerCase(),
-      'firstName': updatedUser.firstName,
-      'lastName': updatedUser.lastName,
-      'username': updatedUser.username,
-      'department': updatedUser.department,
-      'program': updatedUser.program,
+      'email': 'admin@smartcheck.com',
+      'displayName': 'Admin User',
+      'role': 'admin',
     };
     notifyListeners();
   }
 
-  void logout() {
-    // TODO: Implement API call to invalidate token on backend
-    _isAuthenticated = false;
-    _token = null;
-    _userData = null;
-    _userRole = null;
-    _currentUser = null;
-    
+  // ===================== FETCH USER PROFILE (/auth/me) =====================
+  Future<bool> _fetchUserProfile(String idToken) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/me'),
+        headers: {
+          'Authorization': 'Bearer $idToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _userData = data;
+
+        // Optionally populate _currentUser model from data
+        _currentUser = Student.fromJson(data);
+
+        return true;
+      } else {
+        print('Failed to fetch user profile: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      return false;
+    }
+  }
+
+  // ===================== LOGOUT =====================
+  Future<void> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (_token != null) {
+        await http.post(
+          Uri.parse('$baseUrl/auth/logout'),
+          headers: {
+            'Authorization': 'Bearer $_token',
+          },
+        );
+      }
+
+      _isAuthenticated = false;
+      _token = null;
+      _userData = null;
+      _userRole = null;
+      _currentUser = null;
+      notifyListeners();
+    } catch (e) {
+      print('Logout error: $e');
+    }
+  }
+
+  // ===================== EMAIL EXISTS CHECK =====================
+  Future<bool> checkEmailExists(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/check-email'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['exists'] ?? false;
+      }
+      return false;
+    } catch (e) {
+      print('Error checking email: $e');
+      return false;
+    }
+  }
+
+  // ===================== UPDATE CURRENT USER (For UI updates) =====================
+  void updateCurrentUser(Student updatedUser) {
+    _currentUser = updatedUser;
+    _userData = {
+      'id': updatedUser.id,
+      'matriculeNumber': updatedUser.matriculeNumber,
+      'email': updatedUser.email,
+      'firstName': updatedUser.firstName,
+      'lastName': updatedUser.lastName,
+      'role': updatedUser.role,
+      'department': updatedUser.department,
+      'program': updatedUser.program,
+      'createdAt': updatedUser.createdAt?.toIso8601String(),
+    };
     notifyListeners();
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../utils/app_theme.dart';
+import 'package:provider/provider.dart';
 import '../../models/course.dart';
+import '../../providers/course_provider.dart';
+import '../../utils/app_theme.dart';
 
 class ManageCoursesScreen extends StatefulWidget {
   const ManageCoursesScreen({Key? key}) : super(key: key);
@@ -10,7 +12,6 @@ class ManageCoursesScreen extends StatefulWidget {
 }
 
 class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
-  List<Course> _courses = [];
   bool _isLoading = true;
 
   @override
@@ -21,129 +22,139 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
 
   Future<void> _loadCourses() async {
     setState(() => _isLoading = true);
-    
     try {
-      // TODO: Implement API call to fetch courses
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Mock data
-      _courses = [
-        Course(
-          id: '1',
-          code: 'CSC101',
-          name: 'Introduction to Computer Science',
-          title: 'Introduction to Computer Science',
-          description: 'Basic concepts of computer science',
-          credits: 3,
-          status: 'Active',
-          lecturerName: 'Dr. Smith',
-          lecturerId: 'lec1',
-          department: 'Computer Science',
-          totalStudents: 45,
-          completedSessions: 8,
-          totalSessions: 12,
-          createdAt: DateTime.now().subtract(const Duration(days: 60)),
-        ),
-        Course(
-          id: '2',
-          code: 'MAT201',
-          name: 'Calculus II',
-          title: 'Calculus II',
-          description: 'Advanced calculus concepts',
-          credits: 4,
-          status: 'Active',
-          lecturerName: 'Prof. Johnson',
-          lecturerId: 'lec2',
-          department: 'Mathematics',
-          totalStudents: 38,
-          completedSessions: 10,
-          totalSessions: 15,
-          createdAt: DateTime.now().subtract(const Duration(days: 55)),
-        ),
-      ];
+      await Provider.of<CourseProvider>(context, listen: false).fetchCourses();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading courses: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showAddEditCourseDialog({Course? course}) {
+    final _codeController = TextEditingController(text: course?.code ?? '');
+    final _titleController = TextEditingController(text: course?.name ?? '');
+    final _creditsController = TextEditingController(text: course?.credits.toString() ?? '3');
+    final _dayOfWeekController = TextEditingController(text: course?.schedule?.dayOfWeek ?? 'Monday');
+    final _timeController = TextEditingController(text: course?.schedule?.time ?? '09:00 - 11:00');
+    final _latController = TextEditingController(text: course?.geofence?.lat.toString() ?? '4.056123');
+    final _lngController = TextEditingController(text: course?.geofence?.lng.toString() ?? '9.700321');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(course == null ? 'Add Course' : 'Edit Course'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(controller: _codeController, decoration: const InputDecoration(labelText: 'Course Code')),
+                TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'Course Title')),
+                TextField(controller: _creditsController, decoration: const InputDecoration(labelText: 'Credits'), keyboardType: TextInputType.number),
+                TextField(controller: _dayOfWeekController, decoration: const InputDecoration(labelText: 'Day of Week')),
+                TextField(controller: _timeController, decoration: const InputDecoration(labelText: 'Time (e.g., 09:00 - 11:00)')),
+                TextField(controller: _latController, decoration: const InputDecoration(labelText: 'Latitude'), keyboardType: TextInputType.number),
+                TextField(controller: _lngController, decoration: const InputDecoration(labelText: 'Longitude'), keyboardType: TextInputType.number),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () async {
+                final code = _codeController.text.trim();
+                final name = _titleController.text.trim();
+                final credits = int.tryParse(_creditsController.text.trim()) ?? 0;
+                final lat = double.tryParse(_latController.text.trim()) ?? 0.0;
+                final lng = double.tryParse(_lngController.text.trim()) ?? 0.0;
+                final dayOfWeek = _dayOfWeekController.text.trim();
+                final time = _timeController.text.trim();
+
+                if (code.isEmpty || name.isEmpty || credits == 0 || dayOfWeek.isEmpty || time.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill all fields')));
+                  return;
+                }
+
+                final newCourse = Course(
+                  id: '',
+                  code: code,
+                  name: name,
+                  credits: credits,
+                  geofence: Geofence(lat: lat, lng: lng),
+                  schedule: Schedule(dayOfWeek: dayOfWeek, time: time),
+                );
+
+                if (course == null) {
+                  await Provider.of<CourseProvider>(context, listen: false).addCourse(newCourse);
+                } else {
+                  await Provider.of<CourseProvider>(context, listen: false).editCourse(course.id, newCourse);
+                }
+
+                Navigator.of(context).pop();
+                _loadCourses();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final courses = Provider.of<CourseProvider>(context).courses;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text('Manage Courses'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
-        elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _courses.length,
-              itemBuilder: (context, index) {
-                final course = _courses[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: AppTheme.primaryColor,
-                      child: Text(
-                        course.code.substring(0, 2),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    title: Text('${course.code} - ${course.title}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Credits: ${course.credits}'),
-                        Text('Lecturer: ${course.lecturerName ?? 'Not Assigned'}'),
-                        Text('Students: ${course.totalStudents ?? 0}'),
-                      ],
-                    ),
-                    trailing: PopupMenuButton(
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Text('Edit'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Delete'),
-                        ),
-                      ],
-                      onSelected: (value) {
-                        // TODO: Implement edit/delete functionality
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('$value course - Coming Soon')),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
+          : RefreshIndicator(
+        onRefresh: _loadCourses,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                title: Text('${course.code} - ${course.title}'),
+                subtitle: Text(
+                    'Lecturer: ${course.lecturerName ?? "Not Assigned"}'),
+                trailing: PopupMenuButton(
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      _showAddEditCourseDialog(course: course);
+                    } else if (value == 'delete') {
+                      Provider.of<CourseProvider>(context, listen: false)
+                          .removeCourse(course.id);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                        value: 'edit', child: Text('Edit')),
+                    const PopupMenuItem(
+                        value: 'delete', child: Text('Delete')),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Navigate to add course screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Add Course - Coming Soon')),
-          );
+          _showAddEditCourseDialog();
         },
         backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add),
       ),
     );
   }

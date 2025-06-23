@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:smartcheck/screens/course/course_list_screen.dart';
 import 'package:smartcheck/screens/dashboard/dashboard_screen.dart';
 import 'package:smartcheck/screens/profile/profile_screen.dart';
 import 'package:smartcheck/screens/dispute/dispute_screen.dart';
 import 'package:smartcheck/screens/notifications/notifications_screen.dart';
 import 'package:smartcheck/utils/app_theme.dart';
-import 'package:smartcheck/widgets/app_logo.dart';
+import 'package:smartcheck/providers/auth_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,13 +20,71 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  
+
   final List<Widget> _screens = [
     const CourseListScreen(),
     const DashboardScreen(),
     const ProfileScreen(),
     const DisputeScreen(),
   ];
+
+  Future<void> _joinCourse(String code) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.token;
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You must be logged in to join a course.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('${authProvider.baseUrl}/courses/join'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'code': code}),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully joined course with code: $code'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Optionally: Refresh course list or call Provider to update
+        // Example: Provider.of<CourseProvider>(context, listen: false).refreshCourses();
+
+        setState(() {
+          _currentIndex = 0; // Go back to CourseListScreen to view joined course
+        });
+      } else {
+        final data = jsonDecode(response.body);
+        final message = data['message'] ?? 'Failed to join course';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   void _showJoinClassDialog() {
     final TextEditingController codeController = TextEditingController();
@@ -31,16 +93,16 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Join Class'),
+          title: const Text('Join Course'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Enter the class code to join:'),
+              const Text('Enter the course code to join:'),
               const SizedBox(height: 16),
               TextField(
                 controller: codeController,
                 decoration: const InputDecoration(
-                  labelText: 'Class Code',
+                  labelText: 'Course Code',
                   border: OutlineInputBorder(),
                   hintText: 'e.g., ABC123',
                 ),
@@ -57,15 +119,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (codeController.text.isNotEmpty) {
-                  // Handle join class logic here
+                final code = codeController.text.trim();
+                if (code.isNotEmpty) {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Joining class with code: ${codeController.text}'),
-                      backgroundColor: AppTheme.primaryColor,
-                    ),
-                  );
+                  _joinCourse(code);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

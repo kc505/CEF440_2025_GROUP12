@@ -1,4 +1,4 @@
-const admin = require('../config/firebaseAdmin');
+const { admin } = require('../config/firebaseAdmin');
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -7,7 +7,7 @@ const authMiddleware = async (req, res, next) => {
     return res.status(401).json({ message: 'Unauthorized: No token provided or invalid format.' });
   }
 
-  const idToken = authHeader.split('Bearer ')[1];
+  const idToken = authHeader.split(' ')[1]; // FIXED HERE
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
@@ -16,9 +16,9 @@ const authMiddleware = async (req, res, next) => {
   } catch (error) {
     console.error('Error verifying Firebase ID token:', error);
     if (error.code === 'auth/id-token-expired') {
-        return res.status(401).json({ message: 'Unauthorized: Token expired.' });
+      return res.status(401).json({ message: 'Unauthorized: Token expired.' });
     }
-    return res.status(401).json({ message: 'Unauthorized: Invalid token.' });
+    return res.status(401).json({ message: 'Unauthorized: Invalid token.', error: error.message });
   }
 };
 

@@ -1,144 +1,112 @@
-// Import necessary modules
-const { admin, db: firestoreDb } = require('../config/firebase-config'); // Assuming you export services from your config
-const { pool } = require('../config/db'); // Your relational DB connection pool
+const { admin, db: firestoreDb } = require('../config/firebaseAdmin');
 
-// 1. SIGNUP CONTROLLER
-// Creates a user in Firebase Auth, then creates corresponding profiles in Firestore and the Relational DB.
 exports.signup = async (req, res) => {
-  const { email, password, firstName, lastName, role, department } = req.body;
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    role,
+    department,
+    admissionYear,
+    employeeNumber,
+    matriculeNumber,
+    officeLocation,
+    phoneNumber,
+    profileImageURL,
+    program,
+    registrationDate,
+    specialization,
+    userID,
+    username,
+  } = req.body;
 
-  // --- Step 1: Input Validation ---
-  if (!email || !password || !firstName || !lastName || !role) {
-    return res.status(400).json({ message: 'Missing required fields: email, password, firstName, lastName, role.' });
+  if (!email || !password || !firstName || !lastName || !role || !userID || !username) {
+    return res.status(400).json({
+      message: 'Missing required fields: email, password, firstName, lastName, role, userID, username.'
+    });
   }
 
   try {
-    // --- Step 2: Create user in Firebase Authentication ---
+    // 1. Create user in Firebase Auth
     const userRecord = await admin.auth().createUser({
-      email: email,
-      password: password,
+      email,
+      password,
       displayName: `${firstName} ${lastName}`,
     });
 
-    const uid = userRecord.uid;
-
-    // --- Step 3: Create user profile in Cloud Firestore ---
-    // This is great for unstructured or semi-structured data.
-    const userProfileRef = firestoreDb.collection('userProfiles').doc(uid);
-    await userProfileRef.set({
-      uid: uid,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      role: role.toLowerCase(), // Store role consistently
-      department: department || null,
+    // 2. Create user profile in Firestore (collection 'users')
+    await firestoreDb.collection('users').doc(userRecord.uid).set({
+      admissionYear: admissionYear || null,             // Number or null
+      department: department || '',
+      email,
+      employeeNumber: employeeNumber || '',
+      firstName,
+      lastName,
+      matriculeNumber: matriculeNumber || '',
+      officeLocation: officeLocation || '',
+      phoneNumber: phoneNumber || '',
+      profileImageURL: profileImageURL || '',
+      program: program || '',
+      registrationDate: registrationDate
+        ? admin.firestore.Timestamp.fromDate(new Date(registrationDate))
+        : admin.firestore.FieldValue.serverTimestamp(),
+      role: role.toLowerCase(),
+      specialization: specialization || '',
+      userID,
+      username,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       isActive: true,
     });
-    
-    // --- Step 4: Create user record in Relational Database ---
-    // This is for your structured data and relationships.
-    // NOTE: We do not store the password here. Firebase handles authentication.
-    const relationalQuery = `
-      INSERT INTO Users (userID, firstName, lastName, email, role, isActive) 
-      VALUES ($1, $2, $3, $4, $5, TRUE) 
-      RETURNING userID, email, role;
-    `;
-    const relationalValues = [uid, firstName, lastName, email, role.toUpperCase()];
-    await pool.query(relationalQuery, relationalValues);
 
-    // --- Step 5: (Optional) Create role-specific record in another table ---
-    // if (role.toLowerCase() === 'student') {
-    //   await pool.query('INSERT INTO Students (studentID, ...) VALUES ($1, ...)', [uid, ...]);
-    // } else if (role.toLowerCase() === 'lecturer') {
-    //   await pool.query('INSERT INTO Lecturers (facultyID, ...) VALUES ($1, ...)', [uid, ...]);
-    // }
-
-    // --- Step 6: Send Success Response ---
-    // The client should now prompt the user to log in to get their ID token.
     res.status(201).json({
-      message: 'User registered successfully. Please login.',
-      uid: uid,
+      message: 'User registered successfully.',
+      uid: userRecord.uid,
       email: userRecord.email,
     });
 
   } catch (error) {
-    console.error('Error during signup:', error);
-    // Handle specific Firebase errors
+    console.error('Signup error:', error);
     if (error.code === 'auth/email-already-exists') {
-      return res.status(409).json({ message: 'Email address is already in use.' }); // 409 Conflict is more specific
+      return res.status(409).json({ message: 'Email already in use.' });
     }
     if (error.code === 'auth/weak-password') {
-      return res.status(400).json({ message: 'Password is too weak. It must be at least 6 characters long.' });
+      return res.status(400).json({ message: 'Password too weak.' });
     }
-    // Generic server error
-    res.status(500).json({ message: 'Failed to register user.', error: error.message });
+    res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 };
 
 
-// 2. LOGIN CONTROLLER --- A NOTE ON BEST PRACTICE
-// In a typical Firebase flow, a backend `/login` route is NOT needed.
-// The standard flow is:
-// 1. Client uses Firebase Client SDK to call `signInWithEmailAndPassword()`.
-// 2. Firebase sends an ID Token directly to the client.
-// 3. Client stores this token and includes it in the `Authorization: Bearer <token>` header for all future requests.
-// 4. Client can immediately call a protected route like `/auth/me` to get the user's profile.
-//
-// Therefore, the `/auth/login` endpoint can often be removed. The code below is kept for reference if you have a specific need for it.
-
+// Client-side login handler
 exports.login = async (req, res) => {
-    return res.status(200).json({ 
-        message: "Login is handled client-side with Firebase SDK. Use the obtained ID token to access protected routes like /auth/me." 
-    });
+  res.status(200).json({
+    message: "Please use Firebase client SDK for authentication."
+  });
 };
 
-
-// 3. GET USER PROFILE CONTROLLER (Protected Route)
-// This is the correct way to get user data after the client has logged in.
+// Get current user profile
 exports.getMe = async (req, res) => {
-  // authMiddleware has already run and attached `req.user`
-  const uid = req.user.uid;
-
   try {
-    // Fetch data from your relational database, which holds the primary user record
-    const { rows } = await pool.query(
-      'SELECT userID, firstName, lastName, email, role, isActive FROM Users WHERE userID = $1', 
-      [uid]
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'User profile not found in database.' });
+    const userDoc = await firestoreDb.collection('userProfiles').doc(req.user.uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    const userProfile = rows[0];
-
-    // You can also fetch additional data from Firestore if needed
-    // const firestoreDoc = await firestoreDb.collection('userProfiles').doc(uid).get();
-    // const firestoreData = firestoreDoc.data();
-    // const combinedProfile = { ...userProfile, ...firestoreData };
-
-    res.status(200).json(userProfile);
-    
+    res.status(200).json(userDoc.data());
   } catch (error) {
-    console.error('Error fetching user profile (/auth/me):', error);
-    res.status(500).json({ message: 'Failed to fetch user profile.' });
+    console.error('Profile fetch error:', error);
+    res.status(500).json({ message: 'Failed to fetch profile', error: error.message });
   }
 };
 
-
-// 4. LOGOUT CONTROLLER
-// Logout is primarily a client-side action (deleting the stored ID token).
-// This backend endpoint provides a "hard logout" by revoking all refresh tokens,
-// forcing the user to log in again on all devices.
+// Logout endpoint
 exports.logout = async (req, res) => {
-  // authMiddleware should protect this route to get the user's UID
-  const uid = req.user.uid;
-
   try {
-    await admin.auth().revokeRefreshTokens(uid);
-    res.status(200).json({ message: 'User refresh tokens have been revoked. Client should clear local token and log out.' });
+    // Revoke all sessions (optional - only needed if you want to force client logout)
+    await admin.auth().revokeRefreshTokens(req.user.uid);
+    res.status(200).json({ message: 'All sessions terminated. Client should clear local credentials.' });
   } catch (error) {
-    console.error('Error revoking refresh tokens:', error);
-    res.status(500).json({ message: 'Failed to revoke refresh tokens.' });
+    console.error('Logout error:', error);
+    res.status(500).json({ message: 'Logout failed', error: error.message });
   }
 };
