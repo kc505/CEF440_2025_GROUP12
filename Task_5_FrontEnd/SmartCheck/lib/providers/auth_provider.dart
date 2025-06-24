@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smartcheck/models/student.dart';
 
 enum UserRole { student, lecturer, admin }
@@ -19,7 +20,8 @@ class AuthProvider with ChangeNotifier {
   String? get token => _token;
   Student? get currentUser => _currentUser;
 
-  final String baseUrl = "http://localhost:5000/api"; // Update to production URL when needed
+  final String baseUrl = "http://localhost:5000/api"; // Use production URL when deploying
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ===================== SIGNUP =====================
   Future<bool> signup({
@@ -61,8 +63,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-
-  // ===================== LOGIN (Firebase Authentication) =====================
+  // ===================== LOGIN =====================
   Future<bool> loginWithFirebase(String email, String password, String role) async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -71,12 +72,9 @@ class AuthProvider with ChangeNotifier {
       );
 
       final firebaseUser = credential.user;
-      if (firebaseUser == null) {
-        throw Exception('User not found after login');
-      }
+      if (firebaseUser == null) throw Exception('User not found after login');
 
       final idToken = await firebaseUser.getIdToken();
-
       _token = idToken;
       _isAuthenticated = true;
 
@@ -89,7 +87,6 @@ class AuthProvider with ChangeNotifier {
         'photoURL': firebaseUser.photoURL,
       };
 
-      // Set role
       switch (role.toLowerCase()) {
         case 'student':
           _userRole = UserRole.student;
@@ -104,6 +101,9 @@ class AuthProvider with ChangeNotifier {
           _userRole = UserRole.student;
       }
 
+      // Fetch Firestore user profile to get full details like program, department, etc.
+      await _fetchFirestoreUser(firebaseUser.uid);
+
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
@@ -112,6 +112,46 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       print('Unexpected login error: $e');
       return false;
+    }
+  }
+
+  // ===================== FETCH USER PROFILE FROM API =====================
+  Future<bool> _fetchUserProfile(String idToken) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/me'),
+        headers: {
+          'Authorization': 'Bearer $idToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _userData = data;
+        _currentUser = Student.fromJson(data);
+        notifyListeners();
+        return true;
+      } else {
+        print('Failed to fetch user profile: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      return false;
+    }
+  }
+
+  // ===================== FETCH USER PROFILE FROM FIRESTORE =====================
+  Future<void> _fetchFirestoreUser(String uid) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        final data = userDoc.data()!;
+        _userData = data;
+        _currentUser = Student.fromJson(data);
+      }
+    } catch (e) {
+      print('Error fetching user from Firestore: $e');
     }
   }
 
@@ -127,34 +167,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // ===================== FETCH USER PROFILE (/auth/me) =====================
-  Future<bool> _fetchUserProfile(String idToken) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/auth/me'),
-        headers: {
-          'Authorization': 'Bearer $idToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _userData = data;
-
-        // Optionally populate _currentUser model from data
-        _currentUser = Student.fromJson(data);
-
-        return true;
-      } else {
-        print('Failed to fetch user profile: ${response.body}');
-        return false;
-      }
-    } catch (e) {
-      print('Error fetching user profile: $e');
-      return false;
-    }
-  }
-
   // ===================== LOGOUT =====================
   Future<void> logout() async {
     try {
@@ -163,9 +175,7 @@ class AuthProvider with ChangeNotifier {
       if (_token != null) {
         await http.post(
           Uri.parse('$baseUrl/auth/logout'),
-          headers: {
-            'Authorization': 'Bearer $_token',
-          },
+          headers: {'Authorization': 'Bearer $_token'},
         );
       }
 
