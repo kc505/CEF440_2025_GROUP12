@@ -38,12 +38,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
-      
-      // For demo purposes, accept any email/password
-      await authProvider.loginAdmin(
-        _emailController.text,
-        _passwordController.text,
-      );
+    
 
       if (mounted) {
         Navigator.of(context).pushReplacement(

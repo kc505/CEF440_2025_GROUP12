@@ -10,7 +10,7 @@ from firebase_admin import credentials, firestore
 import base64
 
 # Initialize Firebase
-cred = credentials.Certificate('../firebaseServiceKey.json')
+cred = credentials.Certificate('Task_6_BackEnd/backend/firebaseServiceKey.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -26,7 +26,7 @@ app.add_middleware(
 )
 
 # Threshold for face matching
-FACE_MATCH_THRESHOLD = 0.6
+FACE_MATCH_THRESHOLD = 0.7
 
 class VerifyRequest(BaseModel):
     userId: str
