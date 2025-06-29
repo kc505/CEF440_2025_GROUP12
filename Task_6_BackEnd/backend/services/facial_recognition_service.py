@@ -10,7 +10,7 @@ from firebase_admin import credentials, firestore
 import base64
 
 # Initialize Firebase
-cred = credentials.Certificate('Task_6_BackEnd/backend/firebaseServiceKey.json')
+cred = credentials.Certificate('../firebaseServiceKey.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
