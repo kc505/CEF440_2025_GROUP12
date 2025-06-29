@@ -22,6 +22,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final _matriculeController = TextEditingController();
   final _departmentController = TextEditingController();
   final _specializationController = TextEditingController();
+  final _admissionYearController = TextEditingController();
+  final _programController = TextEditingController();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -36,12 +38,13 @@ class _SignupScreenState extends State<SignupScreen> {
     _matriculeController.dispose();
     _departmentController.dispose();
     _specializationController.dispose();
+    _admissionYearController.dispose();
+    _programController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      // Navigate to face capture screen with all user data
       if (mounted) {
         Navigator.push(
           context,
@@ -56,6 +59,8 @@ class _SignupScreenState extends State<SignupScreen> {
               matriculeNumber: _matriculeController.text.trim(),
               department: _departmentController.text.trim(),
               specialization: _specializationController.text.trim(),
+              program: _programController.text.trim(), // Add this
+              admissionYear: _admissionYearController.text.trim(), // Add this
             ),
           ),
         );
@@ -269,6 +274,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       label: 'Matricule Number',
                       controller: _matriculeController,
                       prefixIcon: Icon(Icons.badge),
+                      validator: (val) => val!.isEmpty ? 'Enter your matricule number' : null,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
@@ -279,9 +285,24 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
+                      label: 'Program/Degree',
+                      controller: _programController,
+                      prefixIcon: Icon(Icons.school_outlined),
+                      validator: (val) => val!.isEmpty ? 'Enter your program' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
                       label: 'Specialization',
                       controller: _specializationController,
                       prefixIcon: Icon(Icons.auto_awesome),
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      label: 'Admission Year',
+                      controller: _admissionYearController,
+                      prefixIcon: Icon(Icons.calendar_today),
+                      keyboardType: TextInputType.number,
+                      validator: (val) => val!.isEmpty ? 'Enter your admission year' : null,
                     ),
                   ],
                 ),

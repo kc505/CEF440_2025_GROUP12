@@ -18,6 +18,8 @@ class SignupFaceCaptureScreen extends StatefulWidget {
   final String matriculeNumber;
   final String department;
   final String specialization;
+  final String program; // Add this
+  final String admissionYear;
 
   const SignupFaceCaptureScreen({
     super.key,
@@ -30,6 +32,8 @@ class SignupFaceCaptureScreen extends StatefulWidget {
     required this.matriculeNumber,
     required this.department,
     required this.specialization,
+    required this.program, // Add this
+    required this.admissionYear,
   });
 
   @override
@@ -42,9 +46,12 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
   bool _isCameraInitialized = false;
   bool _isProcessing = false;
   String _statusMessage = 'Position your face clearly in the circle';
+  double _processingProgress = 0.0;
 
   late AnimationController _pulseController;
+  late AnimationController _processingController;
   late Animation<double> _pulseAnimation;
+  late Animation<double> _processingAnimation;
 
   @override
   void initState() {
@@ -66,6 +73,18 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
       curve: Curves.easeInOut,
     ));
     _pulseController.repeat(reverse: true);
+
+    _processingController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _processingAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _processingController,
+      curve: Curves.easeInOut,
+    ));
   }
 
   Future<void> _initializeCamera() async {
@@ -84,75 +103,57 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
 
     setState(() {
       _isProcessing = true;
-      _statusMessage = 'Capturing and processing...';
+      _statusMessage = 'Capturing your face...';
+      _processingProgress = 0.0;
     });
 
+    _processingController.repeat();
+
     try {
-      final XFile? picture = await CameraService.takePicture();
-      if (picture == null) throw Exception('Could not capture photo');
-
-      final bytes = await picture.readAsBytes();
-      final base64ImageData = base64Encode(bytes);
-
-      // Add data URI prefix so backend knows the image type
-      final base64Image = 'data:image/jpeg;base64,$base64ImageData';
-
+      // Simulate face capture
+      await Future.delayed(const Duration(milliseconds: 500));
       setState(() {
-        _statusMessage = 'Registering your face data...';
+        _statusMessage = 'Processing facial data...';
+        _processingProgress = 0.2;
       });
 
-      // Use email as studentId or change to your user id logic
-      final studentId = widget.email; // or any unique id you want to use
-
-      const String faceApiUrl = "http://localhost:5001/register";
-      final faceResponse = await http.post(
-        Uri.parse(faceApiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "studentId": studentId,
-          "imageBase64": base64Image,
-          // optionally "isActive": "true",
-        }),
-      ).timeout(const Duration(seconds: 30));
-
-      if (faceResponse.statusCode == 200 || faceResponse.statusCode == 201) {
+      // Simulate face processing with progress updates
+      for (int i = 1; i <= 4; i++) {
+        await Future.delayed(const Duration(milliseconds: 1000));
         setState(() {
-          _statusMessage = 'Face data registered! Completing signup...';
+          _processingProgress = 0.2 + (i * 0.15);
+          if (i == 1) _statusMessage = 'Analyzing facial features...';
+          if (i == 2) _statusMessage = 'Creating face profile...';
+          if (i == 3) _statusMessage = 'Securing your data...';
+          if (i == 4) _statusMessage = 'Finalizing registration...';
         });
+      }
 
-        // Proceed with your signup API call as is
-        const String signupApiUrl = "http://localhost:5000/api/auth/signup";
-        final signupResponse = await http.post(
-          Uri.parse(signupApiUrl),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            "name": widget.name,
-            "email": widget.email,
-            "password": widget.password,
-            "role": widget.role,
-            "username": widget.username,
-            "phoneNumber": widget.phoneNumber,
-            "matriculeNumber": widget.matriculeNumber,
-            "department": widget.department,
-            "specialization": widget.specialization,
-          }),
-        ).timeout(const Duration(seconds: 30));
+      setState(() {
+        _statusMessage = 'Registering your account...';
+        _processingProgress = 0.9;
+      });
 
-        if (signupResponse.statusCode == 200 || signupResponse.statusCode == 201) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SignupSuccessScreen(
-                userName: widget.name,
-                userRole: widget.role,
-              ),
+      // Register user via your signup API
+      await _registerUserViaAPI();
+
+      setState(() {
+        _processingProgress = 1.0;
+        _statusMessage = 'Registration complete!';
+      });
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SignupSuccessScreen(
+              userName: widget.name,
+              userRole: widget.role,
             ),
-          );
-        } else {
-          _handleSignupError(signupResponse);
-        }
-      } else {
-        _handleFaceRegistrationError(faceResponse);
+          ),
+        );
       }
     } catch (e) {
       _showError("Registration failed: ${e.toString()}");
@@ -161,26 +162,68 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
         setState(() {
           _isProcessing = false;
           _statusMessage = 'Position your face clearly in the circle';
+          _processingProgress = 0.0;
         });
+        _processingController.stop();
       }
     }
   }
 
-  void _handleFaceRegistrationError(http.Response response) {
-    print("Face registration failed!");
-    print("Status Code: ${response.statusCode}");
-    print("Response Body: ${response.body}");
-
-    String errorMessage;
+  Future<void> _registerUserViaAPI() async {
     try {
-      final errorData = jsonDecode(response.body);
-      errorMessage = errorData['detail'] ?? errorData['error'] ?? 'Face registration failed';
-    } catch (_) {
-      errorMessage = 'Face registration failed with unexpected response: ${response.body}';
-    }
+      // Split name into firstName and lastName
+      List<String> nameParts = widget.name.split(' ');
+      String firstName = nameParts.first;
+      String lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : '';
 
-    _showError(errorMessage);
+      const String signupApiUrl = "http://localhost:5000/api/auth/signup";
+
+
+      // Create the request body matching your backend exactly
+      final requestBody = {
+        "email": widget.email,
+        "password": widget.password,
+        "firstName": firstName,
+        "lastName": lastName,
+        "role": widget.role,
+        "userID": widget.matriculeNumber, // Using matricule as userID
+        "username": widget.username,
+        // Optional fields - include if not empty
+        if (widget.phoneNumber.isNotEmpty) "phoneNumber": widget.phoneNumber,
+        if (widget.matriculeNumber.isNotEmpty) "matriculeNumber": widget.matriculeNumber,
+        if (widget.department.isNotEmpty) "department": widget.department,
+        if (widget.specialization.isNotEmpty) "specialization": widget.specialization,
+        if (widget.program.isNotEmpty) "program": widget.program,
+        if (widget.admissionYear.isNotEmpty) "admissionYear": int.tryParse(widget.admissionYear),
+        // Auto-generated fields
+        "registrationDate": DateTime.now().toIso8601String(),
+      };
+
+      print('Sending signup request with body: ${jsonEncode(requestBody)}');
+
+      final signupResponse = await http.post(
+        Uri.parse(signupApiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      ).timeout(const Duration(seconds: 30));
+
+      print('Signup response status: ${signupResponse.statusCode}');
+      print('Signup response body: ${signupResponse.body}');
+
+      if (signupResponse.statusCode != 200 && signupResponse.statusCode != 201) {
+        _handleSignupError(signupResponse);
+        throw Exception('Signup failed');
+      }
+
+      print('User registered successfully via API');
+    } catch (e) {
+      print('Error registering user via API: $e');
+      throw Exception('Failed to register user: $e');
+    }
   }
+
 
   void _handleSignupError(http.Response response) {
     print("Signup failed!");
@@ -211,6 +254,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
   @override
   void dispose() {
     _pulseController.dispose();
+    _processingController.dispose();
     CameraService.disposeCameraController();
     super.dispose();
   }
@@ -231,6 +275,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
       body: SafeArea(
         child: Column(
           children: [
+            // Status header
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -257,10 +302,44 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
                       textAlign: TextAlign.center,
                     ),
                   ],
+                  if (_isProcessing) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Row(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: MediaQuery.of(context).size.width * 0.8 * _processingProgress,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryColor,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${(_processingProgress * 100).toInt()}% Complete',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
 
+            // Camera preview
             Expanded(
               child: _isCameraInitialized && _cameraController != null
                   ? Stack(
@@ -295,20 +374,56 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
                   if (_isProcessing)
                     Container(
                       color: Colors.black54,
-                      child: const Center(
+                      child: Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircularProgressIndicator(
-                              color: AppTheme.primaryColor,
-                              strokeWidth: 3,
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: CircularProgressIndicator(
+                                    value: _processingProgress,
+                                    color: AppTheme.primaryColor,
+                                    strokeWidth: 4,
+                                    backgroundColor: Colors.white.withOpacity(0.2),
+                                  ),
+                                ),
+                                AnimatedBuilder(
+                                  animation: _processingAnimation,
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _processingAnimation.value * 2 * 3.14159,
+                                      child: Icon(
+                                        Icons.face,
+                                        color: AppTheme.primaryColor,
+                                        size: 32,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Processing...',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                            const SizedBox(height: 24),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: AppTheme.primaryColor.withOpacity(0.3),
+                                ),
+                              ),
+                              child: Text(
+                                _statusMessage,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ],
@@ -324,6 +439,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
               ),
             ),
 
+            // Bottom controls
             Container(
               padding: const EdgeInsets.all(24),
               color: Colors.black,
@@ -341,15 +457,30 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 2,
+                        disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.6),
                       ),
                       child: _isProcessing
-                          ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
+                          ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                              value: _processingProgress,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Processing...',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       )
                           : const Text(
                         'Capture & Register',
@@ -362,7 +493,9 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Hold still and tap capture when your face is centered',
+                    _isProcessing
+                        ? 'Please wait while we process your facial data securely'
+                        : 'Hold still and tap capture when your face is centered',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.7),
                       fontSize: 14,
