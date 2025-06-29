@@ -39,6 +39,58 @@ class Schedule {
 }
 
 class Course {
+
+  Course copyWith({
+    String? id,
+    String? code,
+    String? name,
+    int? credits,
+    Geofence? geofence,
+    Schedule? schedule,
+    String? status,
+    String? title,
+    String? description,
+    String? lecturer,
+    String? lecturerId,
+    String? lecturerName,
+    String? semester,
+    int? year,
+    int? totalStudents,
+    List<String>? enrolledStudents,
+    int? completedSessions,
+    int? totalSessions,
+    String? department,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? isActive,
+    String? venue,
+  }) {
+    return Course(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      credits: credits ?? this.credits,
+      geofence: geofence ?? this.geofence,
+      schedule: schedule ?? this.schedule,
+      status: status ?? this.status,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      lecturer: lecturer ?? this.lecturer,
+      lecturerId: lecturerId ?? this.lecturerId,
+      lecturerName: lecturerName ?? this.lecturerName,
+      semester: semester ?? this.semester,
+      year: year ?? this.year,
+      totalStudents: totalStudents ?? this.totalStudents,
+      enrolledStudents: enrolledStudents ?? this.enrolledStudents,
+      completedSessions: completedSessions ?? this.completedSessions,
+      totalSessions: totalSessions ?? this.totalSessions,
+      department: department ?? this.department,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isActive: isActive ?? this.isActive,
+      venue: venue ?? this.venue,
+    );
+  }
   final String id;
   final String code;
   final String name;

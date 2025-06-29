@@ -240,9 +240,7 @@ class _EditSessionAttendanceScreenState extends State<EditSessionAttendanceScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-
                   widget.course.title ?? 'Untitled',
-
                   style: AppTheme.headingStyle.copyWith(
                     color: AppTheme.primaryColor,
                     fontSize: 18,
