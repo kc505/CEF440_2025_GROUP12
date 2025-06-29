@@ -1,19 +1,20 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
 import 'package:smartcheck/models/course.dart';
-import 'package:smartcheck/screens/lecturer/edit_attendance_screen.dart';
+import 'package:smartcheck/models/session.dart';
+import 'package:smartcheck/models/student.dart' hide StudentAttendance;
 import 'package:smartcheck/utils/app_theme.dart';
-import 'package:smartcheck/services/camera_service.dart';
 import 'package:smartcheck/widgets/app_logo.dart';
+import 'package:intl/intl.dart';
 
 class SessionAttendanceScreen extends StatefulWidget {
   final Course course;
-  final Map<String, dynamic> sessionDetails;
+  final Session session;
 
   const SessionAttendanceScreen({
     super.key,
     required this.course,
-    required this.sessionDetails,
+    required this.session,
   });
 
   @override
@@ -21,114 +22,195 @@ class SessionAttendanceScreen extends StatefulWidget {
 }
 
 class _SessionAttendanceScreenState extends State<SessionAttendanceScreen> {
-  CameraController? _cameraController;
-  bool _isCameraInitialized = false;
-  final bool _isProcessing = false;
+  bool _isLoading = true;
   bool _isSessionActive = true;
-  List<Map<String, dynamic>> _recognizedStudents = [];
-  String _statusMessage = 'Initializing camera...';
+  List<StudentAttendance> _studentAttendances = [];
+  Timer? _refreshTimer;
+  int _presentCount = 0;
+  int _absentCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
-    _simulateStudentRecognition();
-  }
-
-  Future<void> _initializeCamera() async {
-    try {
-      _cameraController = await CameraService.initializeCameraController();
-      
-      if (_cameraController != null) {
-        setState(() {
-          _isCameraInitialized = true;
-          _statusMessage = 'Camera ready. Scanning for students...';
-        });
-      } else {
-        setState(() {
-          _statusMessage = 'Camera not available. Please check permissions.';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _statusMessage = 'Error initializing camera: ${e.toString()}';
-      });
-    }
-  }
-
-  // Simulate student recognition for demo purposes
-  void _simulateStudentRecognition() {
-    // Initial students
-    _recognizedStudents = [
-      {'id': '1', 'name': 'John Doe', 'time': '10:02 AM', 'confidence': 0.95},
-      {'id': '2', 'name': 'Jane Smith', 'time': '10:03 AM', 'confidence': 0.92},
-    ];
-    
-    // Simulate more students being recognized over time
-    Future.delayed(const Duration(seconds: 5), () {
-      if (mounted && _isSessionActive) {
-        setState(() {
-          _recognizedStudents.add({
-            'id': '3',
-            'name': 'Michael Johnson',
-            'time': '10:05 AM',
-            'confidence': 0.89,
-          });
-        });
-      }
-    });
-    
-    Future.delayed(const Duration(seconds: 10), () {
-      if (mounted && _isSessionActive) {
-        setState(() {
-          _recognizedStudents.add({
-            'id': '4',
-            'name': 'Emily Williams',
-            'time': '10:07 AM',
-            'confidence': 0.94,
-          });
-        });
-      }
-    });
-    
-    Future.delayed(const Duration(seconds: 15), () {
-      if (mounted && _isSessionActive) {
-        setState(() {
-          _recognizedStudents.add({
-            'id': '5',
-            'name': 'David Brown',
-            'time': '10:09 AM',
-            'confidence': 0.91,
-          });
-        });
-      }
-    });
-  }
-
-  void _endSession() {
-    setState(() {
-      _isSessionActive = false;
-    });
-    
-    // TODO: Implement API call to end session and save attendance data
-    
-    // Navigate to edit attendance screen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditAttendanceScreen(
-          course: widget.course,
-          sessionDetails: widget.sessionDetails,
-          recognizedStudents: _recognizedStudents,
-        ),
-      ),
-    );
+    _loadStudentAttendances();
+    _startRealTimeUpdates();
   }
 
   @override
   void dispose() {
-    CameraService.disposeCameraController();
+    _refreshTimer?.cancel();
     super.dispose();
+  }
+
+  void _startRealTimeUpdates() {
+    // Refresh attendance data every 5 seconds for real-time updates
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_isSessionActive) {
+        _loadStudentAttendances();
+      }
+    });
+  }
+
+  Future<void> _loadStudentAttendances() async {
+    try {
+      // TODO: Replace with actual API call to get real-time attendance data
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Mock student attendance data
+      List<StudentAttendance> attendances = [
+        StudentAttendance(
+          studentId: '1',
+          studentName: 'John Doe',
+          matricule: 'STU001',
+          isPresent: true,
+          checkInTime: '10:05 AM',
+          verificationMethod: 'Face Recognition + Geofence',
+          timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
+        ),
+        StudentAttendance(
+          studentId: '2',
+          studentName: 'Jane Smith',
+          matricule: 'STU002',
+          isPresent: true,
+          checkInTime: '10:07 AM',
+          verificationMethod: 'Face Recognition + Geofence',
+          timestamp: DateTime.now().subtract(const Duration(minutes: 13)),
+        ),
+        StudentAttendance(
+          studentId: '3',
+          studentName: 'Michael Johnson',
+          matricule: 'STU003',
+          isPresent: false,
+          checkInTime: null,
+          verificationMethod: null,
+          timestamp: null,
+        ),
+        StudentAttendance(
+          studentId: '4',
+          studentName: 'Emily Williams',
+          matricule: 'STU004',
+          isPresent: true,
+          checkInTime: '10:12 AM',
+          verificationMethod: 'Face Recognition + Geofence',
+          timestamp: DateTime.now().subtract(const Duration(minutes: 8)),
+        ),
+        StudentAttendance(
+          studentId: '5',
+          studentName: 'David Brown',
+          matricule: 'STU005',
+          isPresent: false,
+          checkInTime: null,
+          verificationMethod: null,
+          timestamp: null,
+        ),
+      ];
+
+      if (mounted) {
+        setState(() {
+          _studentAttendances = attendances;
+          _presentCount = attendances.where((a) => a.isPresent).length;
+          _absentCount = attendances.where((a) => !a.isPresent).length;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading attendance: ${e.toString()}'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  void _toggleStudentAttendance(String studentId, bool isPresent) {
+    setState(() {
+      int index = _studentAttendances.indexWhere((a) => a.studentId == studentId);
+      if (index != -1) {
+        _studentAttendances[index] = _studentAttendances[index].copyWith(
+          isPresent: isPresent,
+          checkInTime: isPresent ? DateFormat('h:mm a').format(DateTime.now()) : null,
+          verificationMethod: isPresent ? 'Manual Entry by Lecturer' : null,
+          timestamp: isPresent ? DateTime.now() : null,
+        );
+        _presentCount = _studentAttendances.where((a) => a.isPresent).length;
+        _absentCount = _studentAttendances.where((a) => !a.isPresent).length;
+      }
+    });
+
+    // TODO: Send update to backend API
+    _saveAttendanceUpdate(studentId, isPresent);
+  }
+
+  Future<void> _saveAttendanceUpdate(String studentId, bool isPresent) async {
+    try {
+      // TODO: Replace with actual API call
+      await Future.delayed(const Duration(milliseconds: 500));
+      debugPrint('Attendance updated for student $studentId: $isPresent');
+    } catch (e) {
+      debugPrint('Error saving attendance update: $e');
+    }
+  }
+
+  void _endSession() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('End Session'),
+          content: Text(
+            'Are you sure you want to end this session?\n\n'
+            'Present: $_presentCount students\n'
+            'Absent: $_absentCount students\n\n'
+            'This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _finalizeSession();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.errorColor,
+              ),
+              child: const Text('End Session'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _finalizeSession() {
+    setState(() {
+      _isSessionActive = false;
+    });
+    _refreshTimer?.cancel();
+
+    // TODO: Send final attendance data to backend
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Session ended. Final attendance: $_presentCount/$_absentCount'),
+        backgroundColor: AppTheme.successColor,
+      ),
+    );
+
+    // Navigate back after a delay
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    });
   }
 
   @override
@@ -139,7 +221,7 @@ class _SessionAttendanceScreenState extends State<SessionAttendanceScreen> {
           children: [
             const AppLogo(height: 28),
             const SizedBox(width: 8),
-            Text('${widget.course.code} - Session'),
+            Text('${widget.course.code} - Attendance'),
           ],
         ),
         leading: IconButton(
@@ -157,280 +239,357 @@ class _SessionAttendanceScreenState extends State<SessionAttendanceScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          // Session info header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: AppTheme.primaryColor.withOpacity(0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                Text(
-                  '${widget.course.code}: ${widget.course.name}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${widget.sessionDetails['date']} at ${widget.sessionDetails['time']}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textSecondaryColor,
-                  ),
-                ),
-                Text(
-                  'Venue: ${widget.sessionDetails['venue']}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textSecondaryColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Camera view and recognized students
-          Expanded(
-            child: Row(
-              children: [
-                // Camera preview
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    color: Colors.black,
-                    child: _isCameraInitialized && _cameraController != null
-                        ? Stack(
-                            children: [
-                              // Camera preview
-                              SizedBox(
-                                width: double.infinity,
-                                height: double.infinity,
-                                child: CameraPreview(_cameraController!),
+                // Session info header
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.session.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${DateFormat('EEEE, MMMM d, yyyy').format(widget.session.date)} at ${widget.session.startTime} - ${widget.session.endTime}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.textSecondaryColor,
+                        ),
+                      ),
+                      Text(
+                        'Venue: ${widget.session.venue}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.textSecondaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _isSessionActive ? AppTheme.successColor : AppTheme.errorColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _isSessionActive ? 'ACTIVE' : 'ENDED',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                               ),
-                              
-                              // Face detection overlay (simulated)
-                              if (_isSessionActive) ...[
-                                Positioned(
-                                  top: 50,
-                                  left: 50,
-                                  child: Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppTheme.successColor,
-                                        width: 2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        'Face 1',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 150,
-                                  right: 80,
-                                  child: Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppTheme.successColor,
-                                        width: 2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        'Face 2',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              
-                              // Status overlay
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  color: Colors.black54,
-                                  child: Text(
-                                    _statusMessage,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.camera_alt,
-                                  size: 80,
-                                  color: Colors.white54,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  _statusMessage,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
                             ),
                           ),
+                          const SizedBox(width: 12),
+                          if (_isSessionActive)
+                            const Text(
+                              '🔄 Real-time updates',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.successColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                
-                // Recognized students list
+
+                // Attendance statistics
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          'Present',
+                          _presentCount.toString(),
+                          Icons.check_circle,
+                          AppTheme.successColor,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Absent',
+                          _absentCount.toString(),
+                          Icons.cancel,
+                          AppTheme.errorColor,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Total',
+                          _studentAttendances.length.toString(),
+                          Icons.people,
+                          AppTheme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Student attendance list
                 Expanded(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.grey[50],
-                    child: Column(
+                  child: RefreshIndicator(
+                    onRefresh: _loadStudentAttendances,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _studentAttendances.length,
+                      itemBuilder: (context, index) {
+                        final attendance = _studentAttendances[index];
+                        return _buildStudentAttendanceCard(attendance);
+                      },
+                    ),
+                  ),
+                ),
+
+                // Session controls
+                if (_isSessionActive)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    color: Colors.white,
+                    child: Row(
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          color: AppTheme.primaryColor,
-                          child: Text(
-                            'Recognized Students (${_recognizedStudents.length})',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _endSession,
+                            icon: const Icon(Icons.stop),
+                            label: const Text('End Session'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.errorColor,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 16),
                         Expanded(
-                          child: ListView.builder(
-                            itemCount: _recognizedStudents.length,
-                            itemBuilder: (context, index) {
-                              final student = _recognizedStudents[index];
-                              return Card(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: AppTheme.successColor,
-                                    child: Text(
-                                      student['name'].substring(0, 2).toUpperCase(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    student['name'],
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Time: ${student['time']}',
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                      Text(
-                                        'Confidence: ${(student['confidence'] * 100).toInt()}%',
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: const Icon(
-                                    Icons.check_circle,
-                                    color: AppTheme.successColor,
-                                    size: 20,
-                                  ),
-                                ),
-                              );
-                            },
+                          child: ElevatedButton.icon(
+                            onPressed: _loadStudentAttendances,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Refresh'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStudentAttendanceCard(StudentAttendance attendance) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: attendance.isPresent 
+              ? AppTheme.successColor.withOpacity(0.3)
+              : AppTheme.errorColor.withOpacity(0.3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: attendance.isPresent 
+                      ? AppTheme.successColor 
+                      : AppTheme.errorColor,
+                  child: Text(
+                    attendance.studentName.split(' ').map((n) => n[0]).take(2).join(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        attendance.studentName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'ID: ${attendance.matricule}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.textSecondaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: attendance.isPresent 
+                        ? AppTheme.successColor 
+                        : AppTheme.errorColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    attendance.isPresent ? 'PRESENT' : 'ABSENT',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-          
-          // Session controls
-          if (_isSessionActive)
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _endSession,
-                      icon: const Icon(Icons.stop),
-                      label: const Text('End Session'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.errorColor,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditAttendanceScreen(
-                              course: widget.course,
-                              sessionDetails: widget.sessionDetails,
-                              recognizedStudents: _recognizedStudents,
-                            ),
+            
+            if (attendance.isPresent) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.successColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, size: 16, color: AppTheme.successColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Check-in: ${attendance.checkInTime}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.successColor,
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.edit),
-                      label: const Text('Edit Attendance'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.verified, size: 16, color: AppTheme.successColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Method: ${attendance.verificationMethod}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.successColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: attendance.isPresent 
+                        ? null 
+                        : () => _toggleStudentAttendance(attendance.studentId, true),
+                    icon: const Icon(Icons.check, size: 16),
+                    label: const Text('Mark Present'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.successColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: !attendance.isPresent 
+                        ? null 
+                        : () => _toggleStudentAttendance(attendance.studentId, false),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: const Text('Mark Absent'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.errorColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+              ],
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
