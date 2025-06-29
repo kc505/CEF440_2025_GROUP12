@@ -27,9 +27,13 @@ app.add_middleware(
 
 # Threshold for face matching
 FACE_MATCH_THRESHOLD = 0.6
+class RegisterRequest(BaseModel):
+    studentId: str
+    imageBase64: str
+
 
 class VerifyRequest(BaseModel):
-    userId: str
+    studentId: str
     imageBase64: str
 
 @app.get("/health")
@@ -42,26 +46,18 @@ def read_root():
 
 
 @app.post("/register")
-async def register_face(studentId: str = Form(...), file: UploadFile = None, imageBase64: str = Form(None)):
+async def register_face(request: RegisterRequest):
     try:
-        # Convert base64 or file to image bytes
-        if file:
-            image_bytes = await file.read()
-        elif imageBase64:
-            image_bytes = base64.b64decode(imageBase64.split(",")[1])
-        else:
-            raise HTTPException(status_code=400, detail="No image provided")
-
+        image_bytes = base64.b64decode(request.imageBase64.split(",")[1])
         image = face_recognition.load_image_file(io.BytesIO(image_bytes))
         encodings = face_recognition.face_encodings(image)
 
         if not encodings:
             raise HTTPException(status_code=400, detail="No face detected")
 
-        # Store the first encoding
         encoding_list = encodings[0].tolist()
 
-        db.collection("facialData").document(studentId).set({
+        db.collection("facialData").document(request.studentId).set({
             "facialEmbedding": encoding_list,
             "faceRegistered": True,
         }, merge=True)

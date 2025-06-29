@@ -104,7 +104,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
       // Use email as studentId or change to your user id logic
       final studentId = widget.email; // or any unique id you want to use
 
-      const String faceApiUrl = "http://localhost:5001/api/face/register";
+      const String faceApiUrl = "http://localhost:5001/register";
       final faceResponse = await http.post(
         Uri.parse(faceApiUrl),
         headers: {'Content-Type': 'application/json'},

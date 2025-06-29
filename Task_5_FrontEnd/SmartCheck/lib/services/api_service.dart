@@ -31,14 +31,23 @@ class ApiService {
   }
 
   static Future<List<Course>> getCourses() async {
-    final response = await http.get(Uri.parse('$baseUrl/courses'));
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
-          .map((json) => Course.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } else {
-      throw Exception('Failed to load courses');
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:5000/api/courses'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      print('API Response: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Course.fromJson(json)).toList();
+      } else {
+        throw Exception('Server error: ${response.statusCode}\n${response.body}');
+      }
+    } catch (e) {
+      print('Full error details: $e');
+      rethrow;
     }
   }
 

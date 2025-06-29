@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_theme.dart';
-import '../../widgets/app_logo.dart';
 import '../auth/login_screen.dart';
 import 'geofence_venues_screen.dart';
 import 'manage_courses_screen.dart';
@@ -69,7 +68,7 @@ class AdminDashboardScreen extends StatelessWidget {
             // Welcome Section
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -83,27 +82,27 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const AppLogo(height: 60, width: 60),
-                  const SizedBox(height: 12),
                   Text(
                     'Welcome, $adminName',
                     style: AppTheme.headingStyle.copyWith(
                       color: AppTheme.primaryColor,
-                      fontSize: 20,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Text(
-                    'SmartCheck Administration Panel',
+                    'Administration Panel',
                     style: AppTheme.bodyStyle.copyWith(
                       color: Colors.grey[600],
+                      fontSize: 16,
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 30),
-            
+
             // Core Management Section
             Text(
               'Core Management',
@@ -127,7 +126,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'Manage attendance locations',
                   Icons.location_on,
                   Colors.blue,
-                  () => Navigator.push(
+                      () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const GeofenceVenuesScreen(),
@@ -140,7 +139,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'Create and edit courses',
                   Icons.book,
                   Colors.green,
-                  () => Navigator.push(
+                      () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const ManageCoursesScreen(),
@@ -153,7 +152,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'Add and manage faculty',
                   Icons.person_outline,
                   Colors.orange,
-                  () => Navigator.push(
+                      () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const ManageLecturersScreen(),
@@ -166,7 +165,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'Student administration',
                   Icons.group,
                   Colors.purple,
-                  () => Navigator.push(
+                      () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const ManageStudentsScreen(),
@@ -176,7 +175,7 @@ class AdminDashboardScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 30),
-            
+
             // Attendance Management Section
             Text(
               'Attendance Management',
@@ -200,7 +199,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'Manage class schedules',
                   Icons.schedule,
                   Colors.teal,
-                  () => Navigator.push(
+                      () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const CourseSchedulesScreen(),
@@ -213,7 +212,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'Edit student attendance',
                   Icons.edit_calendar,
                   Colors.indigo,
-                  () => Navigator.push(
+                      () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const AttendanceManagementScreen(),
@@ -226,7 +225,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'View system reports',
                   Icons.analytics,
                   Colors.red,
-                  () => Navigator.push(
+                      () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SystemAnalyticsScreen(),
@@ -239,7 +238,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   'Configure system',
                   Icons.settings,
                   Colors.grey,
-                  () {
+                      () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('System Settings - Coming Soon')),
                     );
@@ -254,13 +253,13 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildDashboardCard(
-    BuildContext context,
-    String title,
-    String subtitle,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+      BuildContext context,
+      String title,
+      String subtitle,
+      IconData icon,
+      Color color,
+      VoidCallback onTap,
+      ) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -341,7 +340,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 Provider.of<AuthProvider>(context, listen: false).logout();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
+                      (route) => false,
                 );
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
