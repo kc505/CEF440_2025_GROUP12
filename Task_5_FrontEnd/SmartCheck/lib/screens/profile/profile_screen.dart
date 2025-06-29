@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,15 +85,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    authProvider.userRole == UserRole.student 
+                    authProvider.userRole == UserRole.student
                         ? 'Student Profile'
                         : authProvider.userRole == UserRole.lecturer
-                            ? 'Lecturer Profile'
-                            : 'Admin Profile',
+                        ? 'Lecturer Profile'
+                        : 'Admin Profile',
                     style: AppTheme.headingStyle,
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Profile header
                   Card(
                     elevation: 2,
@@ -106,22 +107,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           CircleAvatar(
                             radius: 40,
                             backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            backgroundImage: _profileImage != null 
-                                ? FileImage(_profileImage!) 
-                                : (authProvider.currentUser?.profileImageURL != null 
-                                    ? NetworkImage(authProvider.currentUser!.profileImageURL!) 
-                                    : null) as ImageProvider?,
-                            child: (_profileImage == null && 
-                                   (authProvider.currentUser?.profileImageURL == null || 
+                            backgroundImage: _profileImage != null
+                                ? FileImage(_profileImage!)
+                                : (authProvider.currentUser?.profileImageURL != null
+                                ? NetworkImage(authProvider.currentUser!.profileImageURL!)
+                                : null) as ImageProvider?,
+                            child: (_profileImage == null &&
+                                (authProvider.currentUser?.profileImageURL == null ||
                                     authProvider.currentUser?.profileImageURL?.isEmpty == true))
                                 ? Text(
-                                    _getInitials(authProvider),
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.primaryColor,
-                                    ),
-                                  )
+                              _getInitials(authProvider),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
+                            )
                                 : null,
                           ),
                           const SizedBox(width: 20),
@@ -162,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Menu items
                   _buildMenuItem(
                     icon: Icons.settings,
@@ -202,9 +203,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            value 
-                              ? 'Dark mode enabled!' 
-                              : 'Light mode enabled!',
+                            value
+                                ? 'Dark mode enabled!'
+                                : 'Light mode enabled!',
                           ),
                           backgroundColor: AppTheme.primaryColor,
                           duration: const Duration(seconds: 1),
@@ -225,7 +226,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Logout button
                   SizedBox(
                     width: double.infinity,
@@ -341,12 +342,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () {
                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
                 authProvider.logout();
-                
+
                 Navigator.of(context).pop();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
+                      (route) => false,
                 );
               },
               child: const Text('Logout'),

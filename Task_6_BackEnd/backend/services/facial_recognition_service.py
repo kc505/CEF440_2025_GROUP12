@@ -36,8 +36,13 @@ class VerifyRequest(BaseModel):
 def health_check():
     return {"status": "ok"}
 
+@app.get("/")
+def read_root():
+    return {"message": "Facial Recognition Service is up and running!"}
+
+
 @app.post("/register")
-async def register_face(userId: str = Form(...), file: UploadFile = None, imageBase64: str = Form(None)):
+async def register_face(studentId: str = Form(...), file: UploadFile = None, imageBase64: str = Form(None)):
     try:
         # Convert base64 or file to image bytes
         if file:
@@ -56,7 +61,7 @@ async def register_face(userId: str = Form(...), file: UploadFile = None, imageB
         # Store the first encoding
         encoding_list = encodings[0].tolist()
 
-        db.collection("users").document(userId).set({
+        db.collection("facialData").document(studentId).set({
             "facialEmbedding": encoding_list,
             "faceRegistered": True,
         }, merge=True)
@@ -69,7 +74,7 @@ async def register_face(userId: str = Form(...), file: UploadFile = None, imageB
 @app.post("/verify")
 async def verify_face(request: VerifyRequest):
     try:
-        doc = db.collection("users").document(request.userId).get()
+        doc = db.collection("facialData").document(request.studentId).get()
         if not doc.exists:
             raise HTTPException(status_code=404, detail="User not found")
 

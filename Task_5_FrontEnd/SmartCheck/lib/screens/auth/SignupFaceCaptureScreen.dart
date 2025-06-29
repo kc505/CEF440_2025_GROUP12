@@ -104,7 +104,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
       // Use email as studentId or change to your user id logic
       final studentId = widget.email; // or any unique id you want to use
 
-      const String faceApiUrl = "http://localhost:5000/api/face/register";
+      const String faceApiUrl = "http://localhost:5001/api/face/register";
       final faceResponse = await http.post(
         Uri.parse(faceApiUrl),
         headers: {'Content-Type': 'application/json'},
@@ -149,12 +149,10 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
             ),
           );
         } else {
-          final errorData = jsonDecode(signupResponse.body);
-          _showError(errorData['message'] ?? 'Signup failed after face registration');
+          _handleSignupError(signupResponse);
         }
       } else {
-        final errorData = jsonDecode(faceResponse.body);
-        _showError(errorData['error'] ?? 'Face registration failed');
+        _handleFaceRegistrationError(faceResponse);
       }
     } catch (e) {
       _showError("Registration failed: ${e.toString()}");
@@ -166,6 +164,38 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
         });
       }
     }
+  }
+
+  void _handleFaceRegistrationError(http.Response response) {
+    print("Face registration failed!");
+    print("Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
+
+    String errorMessage;
+    try {
+      final errorData = jsonDecode(response.body);
+      errorMessage = errorData['detail'] ?? errorData['error'] ?? 'Face registration failed';
+    } catch (_) {
+      errorMessage = 'Face registration failed with unexpected response: ${response.body}';
+    }
+
+    _showError(errorMessage);
+  }
+
+  void _handleSignupError(http.Response response) {
+    print("Signup failed!");
+    print("Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
+
+    String errorMessage;
+    try {
+      final errorData = jsonDecode(response.body);
+      errorMessage = errorData['detail'] ?? errorData['error'] ?? 'Signup failed';
+    } catch (_) {
+      errorMessage = 'Signup failed with unexpected response: ${response.body}';
+    }
+
+    _showError(errorMessage);
   }
 
   void _showError(String message) {
