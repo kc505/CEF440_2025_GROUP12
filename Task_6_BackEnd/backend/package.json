@@ -27,7 +27,8 @@
   },
   "homepage": "https://github.com/kc505/CEF440_2025_GROUP12#readme",
   "dependencies": {
-    "@tensorflow/tfjs": "^3.18.0",
+    "@tensorflow/tfjs": "^3.21.0",
+    "@vladmandic/face-api": "^1.7.15",
     "axios": "^1.9.0",
     "canvas": "^2.11.2",
     "cors": "^2.8.5",

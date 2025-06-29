@@ -24,12 +24,12 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   final _matriculeController = TextEditingController();
   final _departmentController = TextEditingController();
   final _programController = TextEditingController();
-  
+
   bool _isEditing = false;
   File? _profileImage;
   String? _profileImagePath;
   final ImagePicker _picker = ImagePicker();
-  
+
   Student? _currentStudent;
 
   @override
@@ -41,7 +41,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
 
   void _initializeStudentData() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     if (authProvider.currentUser != null) {
       _currentStudent = authProvider.currentUser!;
     } else {
@@ -65,7 +65,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
         academicStatus: 'Active',
       );
     }
-    
+
     _loadUserData();
   }
 
@@ -106,14 +106,14 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
         maxHeight: 512,
         imageQuality: 75,
       );
-      
+
       if (image != null) {
         setState(() {
           _profileImage = File(image.path);
           _profileImagePath = image.path;
         });
         await _saveProfileImage(image.path);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -198,20 +198,20 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                       CircleAvatar(
                         radius: 60,
                         backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                        backgroundImage: _profileImage != null 
-                            ? FileImage(_profileImage!) 
-                            : (_currentStudent!.profileImageURL != null 
-                                ? NetworkImage(_currentStudent!.profileImageURL!) 
-                                : null) as ImageProvider?,
+                        backgroundImage: _profileImage != null
+                            ? FileImage(_profileImage!)
+                            : (_currentStudent!.profileImageURL != null
+                            ? NetworkImage(_currentStudent!.profileImageURL!)
+                            : null) as ImageProvider?,
                         child: (_profileImage == null && _currentStudent!.profileImageURL == null)
                             ? Text(
-                                _currentStudent!.initials,
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.primaryColor,
-                                ),
-                              )
+                          _currentStudent!.initials,
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                          ),
+                        )
                             : null,
                       ),
                       Positioned(
@@ -268,7 +268,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                     keyboardType: TextInputType.phone,
                   ),
                 ]),
-                
+
                 const SizedBox(height: 24),
 
                 // Academic Information
@@ -518,13 +518,13 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
           updatedAt: DateTime.now(),
         );
       });
-      
+
       // Update the AuthProvider with the new user data
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       authProvider.updateCurrentUser(_currentStudent!);
-      
+
       // TODO: Save to API/database
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Profile updated successfully!'),

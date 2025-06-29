@@ -101,9 +101,13 @@ exports.getMe = async (req, res) => {
 
 // Logout endpoint
 exports.logout = async (req, res) => {
+  const { uid } = req.body; // 👈 get uid from request body
+  if (!uid) {
+    return res.status(400).json({ message: 'UID is required to logout.' });
+  }
+
   try {
-    // Revoke all sessions (optional - only needed if you want to force client logout)
-    await admin.auth().revokeRefreshTokens(req.user.uid);
+    await admin.auth().revokeRefreshTokens(uid);
     res.status(200).json({ message: 'All sessions terminated. Client should clear local credentials.' });
   } catch (error) {
     console.error('Logout error:', error);

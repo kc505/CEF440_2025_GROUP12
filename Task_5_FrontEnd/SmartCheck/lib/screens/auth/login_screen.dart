@@ -111,8 +111,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: Column(
                     children: [
-                      const AppLogo(height: 60),
-                      const SizedBox(height: 8),
+                      Image.asset(
+                        'assets/images/smartcheck_logo.png',
+                        height: 60,
+                      ),
                       Text('Login', style: Theme.of(context).textTheme.displayMedium),
                       const SizedBox(height: 8),
                       Text(
