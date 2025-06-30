@@ -178,7 +178,7 @@ class _SignupFaceCaptureScreenState extends State<SignupFaceCaptureScreen>
           ? nameParts.sublist(1).join(' ')
           : '';
 
-      const String signupApiUrl = "http://localhost:5000/api/auth/signup";
+      const String signupApiUrl = "http://192.168.111.220:5000/api/auth/signup";
 
 
       // Create the request body matching your backend exactly
